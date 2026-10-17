@@ -35,6 +35,8 @@ public sealed class WebViewManager
     public bool IsOnHomePage => LauncherHostManager.IsLauncherUrl(_webView.Source?.ToString());
 
     public event EventHandler<CoreWebView2NavigationCompletedEventArgs>? NavigationCompleted;
+    public event Action<string>? ExternalAppLaunchRequested;
+    public event Action? HomeRequested;
 
     public WebViewManager(WebView2 webView, ScriptInjector scriptInjector, AppConfig config)
     {
@@ -43,7 +45,8 @@ public sealed class WebViewManager
         _config = config;
         _launcherHostManager = new LauncherHostManager(config);
         _launcherHostManager.ServiceLaunchRequested += url => Navigate(url);
-        _launcherHostManager.HomeRequested += NavigateToHome;
+        _launcherHostManager.ExternalAppLaunchRequested += exePath => ExternalAppLaunchRequested?.Invoke(exePath);
+        _launcherHostManager.HomeRequested += () => HomeRequested?.Invoke();
     }
 
     public static string GetIsolatedProfilePath()

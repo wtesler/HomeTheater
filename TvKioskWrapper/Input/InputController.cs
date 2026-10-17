@@ -176,6 +176,13 @@ public sealed class InputController
             }
 
             e.Handled = true;
+
+            // Allow semantic navigator to close open modals, drawers, or overlay players first.
+            if (await _scriptInjector.TryHandleDomBackAsync(_webView))
+            {
+                return;
+            }
+
             if (_webView.CanGoBack)
             {
                 _webView.GoBack();

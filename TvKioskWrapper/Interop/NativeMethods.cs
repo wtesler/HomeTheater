@@ -14,6 +14,12 @@ internal static partial class NativeMethods
         public int Y;
     }
 
+    internal const int WM_HOTKEY = 0x0312;
+    internal const uint MOD_NOREPEAT = 0x4000;
+    internal const uint VK_F1 = 0x70;
+    internal const uint VK_F12 = 0x7B;
+    internal const int SW_RESTORE = 9;
+
     [LibraryImport("user32.dll")]
     private static partial int ShowCursor([MarshalAs(UnmanagedType.Bool)] bool bShow);
 
@@ -24,6 +30,18 @@ internal static partial class NativeMethods
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool SetForegroundWindow(nint hWnd);
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool ShowWindow(nint hWnd, int nCmdShow);
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool RegisterHotKey(nint hWnd, int id, uint fsModifiers, uint vk);
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool UnregisterHotKey(nint hWnd, int id);
 
     /// <summary>
     /// Normalizes the Win32 thread cursor display counter so the cursor is deterministically shown or hidden,

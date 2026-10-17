@@ -30,15 +30,16 @@
     }
 
     function launchService(service) {
-        if (!service || !service.url) return;
+        if (!service || (!service.url && !service.executablePath)) return;
 
         if (window.chrome && window.chrome.webview) {
             window.chrome.webview.postMessage({
                 type: "launchService",
-                url: service.url,
+                url: service.url || "",
+                executablePath: service.executablePath || "",
                 name: service.name
             });
-        } else {
+        } else if (service.url) {
             window.location.href = service.url;
         }
     }
@@ -115,10 +116,15 @@
             card.style.setProperty("--card-accent", service.accentColor || "#00E5FF");
             card.style.setProperty("--card-glow", hexToRgba(service.accentColor || "#00E5FF", 0.45));
 
-            let hostLabel = service.url;
-            try {
-                hostLabel = new URL(service.url).hostname.replace(/^www\./, "");
-            } catch (_) {}
+            let hostLabel = service.url || "";
+            if (service.executablePath) {
+                const parts = service.executablePath.split(/[\\/]/);
+                hostLabel = parts[parts.length - 1] || "Desktop App";
+            } else {
+                try {
+                    hostLabel = new URL(service.url).hostname.replace(/^www\./, "");
+                } catch (_) {}
+            }
 
             card.innerHTML = `
                 <div>

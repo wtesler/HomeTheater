@@ -23,6 +23,7 @@ public partial class MainWindow : Window, IKioskShellActions
     private readonly WebViewManager _webViewManager;
     private readonly CursorAutoHider _cursorAutoHider;
     private readonly InputController _inputController;
+    private readonly ExternalAppManager _externalAppManager;
     private readonly AutomationServer? _automationServer;
 
     private bool _isInitialized;
@@ -40,6 +41,11 @@ public partial class MainWindow : Window, IKioskShellActions
         _scriptInjector = new ScriptInjector();
         _webViewManager = new WebViewManager(KioskWebView, _scriptInjector, _config);
         _webViewManager.NavigationCompleted += OnWebViewNavigationCompleted;
+        _webViewManager.ExternalAppLaunchRequested += LaunchExternalApp;
+        _webViewManager.HomeRequested += NavigateToHome;
+
+        _externalAppManager = new ExternalAppManager(this);
+        _externalAppManager.ReturnToLauncherRequested += NavigateToHome;
 
         _cursorAutoHider = new CursorAutoHider(
             this,
@@ -82,6 +88,11 @@ public partial class MainWindow : Window, IKioskShellActions
 
     private async void Window_Activated(object sender, EventArgs e)
     {
+        if (_externalAppManager.IsAppRunning)
+        {
+            return;
+        }
+
         if (!_config.AutomationEnabled)
         {
             ActivateNativeWindow();
@@ -112,6 +123,7 @@ public partial class MainWindow : Window, IKioskShellActions
 
     private void Window_Closed(object sender, EventArgs e)
     {
+        _externalAppManager.Dispose();
         _automationServer?.Dispose();
         _cursorAutoHider.StopAndRestore();
     }
@@ -120,8 +132,30 @@ public partial class MainWindow : Window, IKioskShellActions
 
     public bool EnsureBrowserFocus() => _isInitialized && _webViewManager.EnsureBrowserFocus();
 
+    public void LaunchExternalApp(string executablePath)
+    {
+        // Yield Topmost status so the external app (e.g. Plex HTPC) appears in front of TvKioskWrapper.
+        Topmost = false;
+        if (!_externalAppManager.Launch(executablePath))
+        {
+            if (!_config.AutomationEnabled)
+            {
+                Topmost = true;
+                ActivateNativeWindow();
+            }
+        }
+    }
+
     public void NavigateToHome()
     {
+        _externalAppManager.CloseActiveApp();
+
+        if (!_config.AutomationEnabled)
+        {
+            Topmost = true;
+            ActivateNativeWindow();
+        }
+
         if (!_isInitialized)
         {
             return;

@@ -21,11 +21,10 @@
       "spatialNavigation": false
     },
     {
-      "name": "Plex Web",
-      "subtitle": "Home Media Server",
-      "url": "https://app.plex.tv/desktop/#!/tv",
+      "name": "Plex HTPC",
+      "subtitle": "Native 10-Foot Home Media Player",
+      "executablePath": "C:\\Program Files\\Plex\\Plex HTPC\\Plex HTPC.exe",
       "accentColor": "#E5A00D",
-      "navigator": "native",
       "spatialNavigation": false
     },
     {

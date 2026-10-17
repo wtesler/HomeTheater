@@ -16,6 +16,9 @@ public sealed class StreamingServicePreset
     [JsonPropertyName("url")]
     public string Url { get; set; } = string.Empty;
 
+    [JsonPropertyName("executablePath")]
+    public string? ExecutablePath { get; set; }
+
     [JsonPropertyName("accentColor")]
     public string AccentColor { get; set; } = "#FFFFFF";
 

@@ -19,6 +19,7 @@ public sealed class LauncherHostManager
     private readonly AppConfig _config;
 
     public event Action<string>? ServiceLaunchRequested;
+    public event Action<string>? ExternalAppLaunchRequested;
     public event Action? HomeRequested;
 
     public LauncherHostManager(AppConfig config)
@@ -72,11 +73,19 @@ public sealed class LauncherHostManager
 
             string? messageType = typeProp.GetString();
 
-            if (string.Equals(messageType, "launchService", StringComparison.OrdinalIgnoreCase) &&
-                root.TryGetProperty("url", out JsonElement urlProp))
+            if (string.Equals(messageType, "launchService", StringComparison.OrdinalIgnoreCase))
             {
-                string? targetUrl = urlProp.GetString();
-                if (!string.IsNullOrWhiteSpace(targetUrl))
+                if (root.TryGetProperty("executablePath", out JsonElement exeProp) &&
+                    exeProp.GetString() is string exePath &&
+                    !string.IsNullOrWhiteSpace(exePath))
+                {
+                    ExternalAppLaunchRequested?.Invoke(exePath);
+                    return;
+                }
+
+                if (root.TryGetProperty("url", out JsonElement urlProp) &&
+                    urlProp.GetString() is string targetUrl &&
+                    !string.IsNullOrWhiteSpace(targetUrl))
                 {
                     ServiceLaunchRequested?.Invoke(targetUrl);
                 }

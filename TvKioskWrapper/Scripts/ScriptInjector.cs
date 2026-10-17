@@ -39,16 +39,15 @@ public sealed class ScriptInjector
 
             if (enableSpatialNavigation && !isHomePage)
             {
-                string navScript = navigatorType?.ToLowerInvariant() switch
+                string mode = navigatorType?.ToLowerInvariant() ?? "spatial";
+                if (mode == "hbomax")
                 {
-                    "hbomax" => HboMaxNavigatorScript.Source,
-                    "native" => string.Empty,
-                    _ => SpatialNavigationScript.Source
-                };
-
-                if (!string.IsNullOrEmpty(navScript))
+                    await webView.CoreWebView2.ExecuteScriptAsync(SemanticNavigatorCoreScript.Source);
+                    await webView.CoreWebView2.ExecuteScriptAsync(HboMaxNavigatorScript.Source);
+                }
+                else if (mode != "native")
                 {
-                    await webView.CoreWebView2.ExecuteScriptAsync(navScript);
+                    await webView.CoreWebView2.ExecuteScriptAsync(SpatialNavigationScript.Source);
                 }
             }
         }
@@ -134,6 +133,24 @@ public sealed class ScriptInjector
         try
         {
             string result = await webView.CoreWebView2.ExecuteScriptAsync(DomBootstrapScripts.CheckEditableOrNativeTvSpa);
+            return string.Equals(result?.Trim(), "true", StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> TryHandleDomBackAsync(WebView2 webView)
+    {
+        if (webView.CoreWebView2 is null)
+        {
+            return false;
+        }
+
+        try
+        {
+            string result = await webView.CoreWebView2.ExecuteScriptAsync(DomBootstrapScripts.TryHandleSemanticBack);
             return string.Equals(result?.Trim(), "true", StringComparison.OrdinalIgnoreCase);
         }
         catch
