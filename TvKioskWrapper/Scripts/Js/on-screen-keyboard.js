@@ -141,6 +141,21 @@
 
     const hide = () => {
         visible = false;
+        if (target && typeof target.blur === 'function') {
+            try { target.blur(); } catch (_) {}
+        }
+        if (document.activeElement && isTextField(document.activeElement)) {
+            try { document.activeElement.blur(); } catch (_) {}
+        }
+        if (document.body) {
+            try {
+                if (!document.body.hasAttribute('tabindex')) {
+                    document.body.setAttribute('tabindex', '-1');
+                }
+                document.body.focus({ preventScroll: true });
+            } catch (_) {}
+        }
+        target = null;
         if (host) host.remove();
         host = null;
         panel = null;
@@ -292,7 +307,14 @@
     window.__tvKioskOsk = {
         isVisible: () => visible,
         tryClose: () => {
-            if (!visible) return false;
+            if (!visible) {
+                const active = document.activeElement;
+                if (isTextField(active)) {
+                    try { active.blur(); } catch (_) {}
+                    return true;
+                }
+                return false;
+            }
             hide();
             return true;
         }

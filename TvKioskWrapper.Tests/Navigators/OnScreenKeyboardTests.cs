@@ -11,10 +11,10 @@ namespace TvKioskWrapper.Tests.Navigators;
 [Trait("Feature", "osk")]
 public sealed class OnScreenKeyboardTests(KioskAutomationFixture kiosk)
 {
-    private sealed record OskState(bool Visible, string? Value);
+    private sealed record OskState(bool Visible, string? Value, bool IsInputFocused);
 
-    private const string StateScript =
-        "({ visible: !!(window.__tvKioskOsk && window.__tvKioskOsk.isVisible()), value: document.activeElement && document.activeElement.value })";
+    private static string GetStateScript(string inputExpression) =>
+        $"({{ visible: !!(window.__tvKioskOsk && window.__tvKioskOsk.isVisible()), value: {inputExpression} ? {inputExpression}.value : null, isInputFocused: document.activeElement === {inputExpression} }})";
 
     [Fact]
     [Trait("Navigator", "primevideo")]
@@ -46,30 +46,35 @@ public sealed class OnScreenKeyboardTests(KioskAutomationFixture kiosk)
 
     private async Task AssertKeyboardTypesAndClosesAsync(string inputExpression)
     {
+        string stateScript = GetStateScript(inputExpression);
+
         // Blur first so Enter reliably (re)opens the keyboard regardless of auto-open on focus.
         await kiosk.EvalAsync<bool>($"(document.activeElement && document.activeElement.blur(), {inputExpression}.focus(), true)");
 
         // Enter on a focused text field opens the keyboard.
         await kiosk.SendKeyAsync("Enter");
-        OskState opened = await kiosk.EvalAsync<OskState>(StateScript);
+        OskState opened = await kiosk.EvalAsync<OskState>(stateScript);
         Assert.True(opened.Visible, "On-screen keyboard did not open for the focused text field.");
 
         // Cursor starts on 'q'; Enter types it into the real input.
         await kiosk.SendKeyAsync("Enter");
-        OskState typed = await kiosk.EvalAsync<OskState>(StateScript);
+        OskState typed = await kiosk.EvalAsync<OskState>(stateScript);
         Assert.True(typed.Visible);
         Assert.Equal("q", typed.Value);
 
         // Right then Enter types the next key ('w').
         await kiosk.SendKeyAsync("Right");
         await kiosk.SendKeyAsync("Enter");
-        OskState typedMore = await kiosk.EvalAsync<OskState>(StateScript);
+        OskState typedMore = await kiosk.EvalAsync<OskState>(stateScript);
         Assert.Equal("qw", typedMore.Value);
 
-        // Escape closes the keyboard but keeps the typed text.
+        // Escape closes the keyboard and relinquishes focus on the input.
         await kiosk.SendKeyAsync("Escape");
-        OskState closed = await kiosk.EvalAsync<OskState>(StateScript);
+        OskState closed = await kiosk.EvalAsync<OskState>(stateScript);
+        string activeTag = await kiosk.EvalAsync<string>("(document.activeElement && document.activeElement.tagName) || 'null'");
+        string activeTestId = await kiosk.EvalAsync<string>("(document.activeElement && document.activeElement.getAttribute('data-testid')) || 'null'");
         Assert.False(closed.Visible, "On-screen keyboard did not close on Escape.");
+        Assert.False(closed.IsInputFocused, $"Focus on input was not relinquished on Escape (activeTag={activeTag}, activeTestId={activeTestId}).");
         Assert.Equal("qw", closed.Value);
     }
 }

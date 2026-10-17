@@ -188,7 +188,12 @@
                 !['checkbox', 'radio', 'button', 'submit', 'reset'].includes((node.type || '').toLowerCase());
 
             if (isTextInput(el)) {
-                el.focus({ preventScroll: true });
+                // Do not force native DOM focus into text inputs during navigation/tracking;
+                // native focus opens the on-screen keyboard and traps typing. Native focus is
+                // instead granted when the user explicitly activates the input (e.g. via Enter).
+                if (document.activeElement && isTextInput(document.activeElement) && document.activeElement !== el) {
+                    document.activeElement.blur();
+                }
             } else {
                 if (document.activeElement && isTextInput(document.activeElement)) {
                     document.activeElement.blur();
