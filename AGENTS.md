@@ -5,10 +5,20 @@
 
 It wraps streaming web apps in a borderless 10-foot interface with hardware-accelerated 4K HDR playback (PlayReady DRM + HEVC), a local Launchpad home screen, and D-Pad (arrow key) navigation.
 
-## Build & Run
+## Build, Run & Test
 ```powershell
 dotnet build
 dotnet run --project TvKioskWrapper
+
+# Run all UI Automation navigator tests (quiet, token-efficient output)
+dotnet test --nologo -v q
+
+# Run a single app navigator test (e.g., HboMax or PrimeVideo)
+dotnet test --nologo -v q --filter HboMax
+dotnet test --nologo -v q --filter PrimeVideo
+
+# Run only the on-screen keyboard tests
+dotnet test --nologo -v q --filter Feature=osk
 ```
 
 ## Architecture & Directory Layout
@@ -20,10 +30,11 @@ Code is organized into small, single-purpose files grouped by domain under `TvKi
 - **`Configuration/`** — Loads `config.json` and command-line overrides (`--url`, `--debug`, `--cursor-timeout`) into `AppConfig` and matches navigated URLs to `StreamingServicePreset` entries.
 - **`WebView/`** — Initializes the WebView2 environment (PlayReady/HEVC browser flags, isolated profile in `%LocalAppData%\TvKioskWrapper\Profile`), maps the virtual host for the Launchpad, and applies per-service User-Agent overrides.
 - **`Input/`** — Intercepts remote/keyboard input (`F1`/`Home` for Launchpad, `F12`/`Alt+F4`/`Ctrl+Q` to exit, `Escape`/`Backspace` for back navigation, `MediaPlayPause`, and D-Pad arrow keys) and blocks unwanted browser shortcuts.
-- **`Scripts/` & `Scripts/Navigators/`** — Injects JavaScript into WebView2 for scrollbar hiding, DOM focus management, Smart TV capability spoofing, and tailored per-app semantic D-Pad navigators. Multi-line JS lives in actual `.js` files under `Js/` subfolders and is loaded via `ScriptFileLoader`.
+- **`Scripts/` & `Scripts/Navigators/`** — Injects JavaScript into WebView2 for scrollbar hiding, DOM focus management, Smart TV capability spoofing, tailored per-app semantic D-Pad navigators, and a D-Pad on-screen keyboard (`Scripts/Js/on-screen-keyboard.js`, shown when a text field is focused in `hbomax`/`primevideo`; injected *before* the navigator core so it claims arrow/Enter/Escape while open; Back closes it via `__tvKioskTryHandleBack`). Multi-line JS lives in actual `.js` files under `Js/` subfolders and is loaded via `ScriptFileLoader`.
 - **`Automation/`** — Lightweight localhost HTTP server (`--automation`, default `http://127.0.0.1:9333/`) for background semantic DOM inspection (`/semantic-tree`), key simulation (`/key`), live JS evaluation (`/eval`), and downscaled low-res JPEG screenshots (`/screenshot?width=800&quality=55`).
 - **`Shell/`** — Shell interfaces (`IKioskShellActions`), inactivity cursor auto-hiding (`CursorAutoHider`), and native desktop app launching/yielding with global `F1`/`F12` hotkey interception (`ExternalAppManager`).
 - **`Interop/`** — Win32 P/Invoke helpers (`NativeMethods`).
+- **`TvKioskWrapper.Tests/`** — xUnit UI automation test suite (`KioskAutomationFixture`) that boots a single background `TvKioskWrapper.exe --automation` instance and verifies each app navigator (`HboMaxNavigatorTests`, `PrimeVideoNavigatorTests`) and the on-screen keyboard (`OnScreenKeyboardTests`) with compact JSON assertions.
 
 ## Key Conventions & Design Rules
 1. **Small, Focused Files:** Keep classes small and focused on a single responsibility. Place new types in the appropriate domain folder rather than expanding existing files into monoliths, and keep injected JavaScript in standalone `.js` files loaded via `ScriptFileLoader`.
@@ -31,7 +42,7 @@ Code is organized into small, single-purpose files grouped by domain under `TvKi
 3. **Navigation Modes (`navigator` / `executablePath` in `config.json`):**
    - `executablePath`: Launches a native 10-foot desktop application (e.g., `Plex HTPC.exe`) in front of the kiosk via `ExternalAppManager` while intercepting global `F1` to close the app and return to the Launchpad.
    - `"native"`: Web services with native 10-foot TV UIs (e.g., YouTube TV) handle arrow keys natively.
-   - `"hbomax"` (and future per-app navigators under `Scripts/Navigators/Js/`): Tailored semantic D-Pad adapters mounted onto the shared `semantic-navigator-core.js` engine.
+   - `"hbomax"`, `"primevideo"` (and future per-app navigators under `Scripts/Navigators/Js/`): Tailored semantic D-Pad adapters mounted onto the shared `semantic-navigator-core.js` engine.
    - `"spatial"`: Generic 2D fallback navigator (`spatial-navigation.js`).
 4. **Credit-Efficient UI Automation (`--automation`):**
    - Run `TvKioskWrapper.exe --automation` (which runs unobtrusively offscreen without stealing focus) and query `/semantic-tree` and `/key` (compact JSON) instead of dumping raw HTML or taking full-resolution screenshots. When screenshots are needed, use `/screenshot?width=800&quality=55`.

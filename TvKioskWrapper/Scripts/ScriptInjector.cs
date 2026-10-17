@@ -42,8 +42,15 @@ public sealed class ScriptInjector
                 string mode = navigatorType?.ToLowerInvariant() ?? "spatial";
                 if (mode == "hbomax")
                 {
+                    await webView.CoreWebView2.ExecuteScriptAsync(OnScreenKeyboardScript.Source);
                     await webView.CoreWebView2.ExecuteScriptAsync(SemanticNavigatorCoreScript.Source);
                     await webView.CoreWebView2.ExecuteScriptAsync(HboMaxNavigatorScript.Source);
+                }
+                else if (mode == "primevideo")
+                {
+                    await webView.CoreWebView2.ExecuteScriptAsync(OnScreenKeyboardScript.Source);
+                    await webView.CoreWebView2.ExecuteScriptAsync(SemanticNavigatorCoreScript.Source);
+                    await webView.CoreWebView2.ExecuteScriptAsync(PrimeVideoNavigatorScript.Source);
                 }
                 else if (mode != "native")
                 {

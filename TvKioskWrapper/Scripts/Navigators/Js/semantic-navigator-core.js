@@ -165,6 +165,7 @@
 
         if (rowId) {
             currentRowId = rowId;
+            window.__tvKioskCurrentRowId = currentRowId;
         }
         if (typeof colIdx === 'number') {
             preferredColIndex = colIdx;
@@ -181,10 +182,15 @@
         }
 
         try {
-            if (el.tagName === 'INPUT') {
+            const isTextInput = (node) =>
+                node &&
+                node.tagName === 'INPUT' &&
+                !['checkbox', 'radio', 'button', 'submit', 'reset'].includes((node.type || '').toLowerCase());
+
+            if (isTextInput(el)) {
                 el.focus({ preventScroll: true });
             } else {
-                if (document.activeElement && document.activeElement.tagName === 'INPUT') {
+                if (document.activeElement && isTextInput(document.activeElement)) {
                     document.activeElement.blur();
                 }
                 el.focus({ preventScroll: true });
@@ -445,6 +451,7 @@
     };
 
     window.__tvKioskTryHandleBack = () => {
+        if (window.__tvKioskOsk && window.__tvKioskOsk.tryClose()) return true;
         if (!activeAdapter) return false;
 
         const drawerItems = activeAdapter.getSlideOutMenuItems
@@ -522,7 +529,9 @@
             return;
         }
 
-        if (document.activeElement && document.activeElement.tagName === 'INPUT') {
+        if (document.activeElement &&
+            document.activeElement.tagName === 'INPUT' &&
+            !['checkbox', 'radio', 'button', 'submit', 'reset'].includes((document.activeElement.type || '').toLowerCase())) {
             if (key === 'ArrowLeft' || key === 'ArrowRight' || key === 'Enter') {
                 return;
             }
@@ -663,6 +672,12 @@
             return;
         }
     }, true);
+
+    window.__tvKioskGetSemanticRowsSummary = () => {
+        if (!activeAdapter || !activeAdapter.buildSemanticRows) return [];
+        const rows = activeAdapter.buildSemanticRows(window.__tvKioskNavUtils) || [];
+        return rows.map(r => ({ id: r.id, type: r.type, count: r.items ? r.items.length : 0 }));
+    };
 
     window.__tvKioskMountSemanticNavigator = (adapter) => {
         activeAdapter = adapter;

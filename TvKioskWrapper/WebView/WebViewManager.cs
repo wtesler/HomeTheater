@@ -156,6 +156,7 @@ public sealed class WebViewManager
         settings.IsSwipeNavigationEnabled = false;
         settings.IsZoomControlEnabled = false;
         settings.IsBuiltInErrorPageEnabled = true;
+        settings.AreHostObjectsAllowed = false;
     }
 
     private async void OnCoreWebViewNavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)

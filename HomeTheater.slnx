@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="TvKioskWrapper/TvKioskWrapper.csproj" />
+  <Project Path="TvKioskWrapper.Tests/TvKioskWrapper.Tests.csproj" />
 </Solution>

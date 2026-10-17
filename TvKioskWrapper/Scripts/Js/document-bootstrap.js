@@ -28,6 +28,17 @@
         }
     }, true);
 
+    // Prevent WebView2's synchronous hostObjects Proxy from throwing fatal 0x80070490 (Element not found)
+    // errors when streaming apps (such as Prime Video) probe chrome.webview.hostObjects.sync.PrimeVideoWinRTComponent.
+    if (window.chrome?.webview) {
+        try {
+            Object.defineProperty(window.chrome.webview, 'hostObjects', {
+                get: () => ({ sync: {}, async: {} }),
+                configurable: true
+            });
+        } catch (_) {}
+    }
+
     // 2. If running on YouTube TV (Cobalt / Smart TV User-Agent), spoof Cobalt environment:
     //    - Hide desktop Client Hints & unregister desktop service workers
     //    - Emulate Cobalt's MediaSource.isTypeSupported parameter validation (rejecting framerate=9999 probes so 4K60 & HDR unlock)

@@ -28,10 +28,13 @@
     };
 
     const customFocused = window.__tvKioskCurrentFocusedEl || document.querySelector('.__tv_kiosk_focused__');
+    const rowSummary = window.__tvKioskGetSemanticRowsSummary ? window.__tvKioskGetSemanticRowsSummary() : [];
     return {
         url: location.href,
         title: document.title,
         navigatorMode: window.__TV_KIOSK_NAVIGATOR_MODE__ || null,
+        currentRowId: window.__tvKioskCurrentRowId || null,
+        rowCount: rowSummary.length,
         domActiveElement: describeEl(document.activeElement),
         kioskFocusedElement: customFocused ? describeEl(customFocused) : null
     };

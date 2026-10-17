@@ -32,7 +32,7 @@
       "subtitle": "Amazon Originals & Movies",
       "url": "https://www.primevideo.com",
       "accentColor": "#00A8E1",
-      "navigator": "spatial",
+      "navigator": "primevideo",
       "spatialNavigation": true
     }
   ]
