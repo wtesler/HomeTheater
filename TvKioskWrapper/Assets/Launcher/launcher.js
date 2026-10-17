@@ -127,19 +127,36 @@
             }
 
             card.innerHTML = `
-                <div>
-                    <div class="app-card-accent"></div>
+                <div class="app-card-body">
+                    <div class="app-card-header">
+                        <div class="app-card-accent"></div>
+                    </div>
+                    <div class="app-card-logo-container">
+                        <img class="app-card-logo" alt="" />
+                    </div>
                     <div class="app-card-title"></div>
-                    <div class="app-card-subtitle"></div>
+                    <!-- <div class="app-card-subtitle"></div> -->
                 </div>
                 <div class="app-card-footer">
                     <span class="app-card-host"></span>
-                    <span>Press Enter ➔</span>
+                    <span class="app-card-action">Press Enter <span class="app-card-action-arrow">➔</span></span>
                 </div>
             `;
 
+            const logoImg = card.querySelector(".app-card-logo");
+            const logoContainer = card.querySelector(".app-card-logo-container");
+            if (service.logo) {
+                logoImg.src = service.logo;
+                logoImg.alt = `${service.name || "App"} logo`;
+                logoImg.onerror = () => {
+                    logoContainer.style.display = "none";
+                };
+            } else {
+                logoContainer.style.display = "none";
+            }
+
             card.querySelector(".app-card-title").textContent = service.name || "App";
-            card.querySelector(".app-card-subtitle").textContent = service.subtitle || "";
+            // card.querySelector(".app-card-subtitle").textContent = service.subtitle || "";
             card.querySelector(".app-card-host").textContent = hostLabel;
 
             card.addEventListener("click", () => {

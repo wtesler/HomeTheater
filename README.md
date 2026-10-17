@@ -159,6 +159,7 @@ The application reads `config.json` from the application directory on startup (`
 - **`cursorHideDelaySeconds`**: Seconds of mouse inactivity before the cursor is hidden (default: `2`).
 - **`debug`**: Enables WebView2 DevTools when set to `true` (can also be enabled via `--debug`).
 - **`services`**: List of apps rendered on the Launchpad Home Page:
+  - **`logo`** *(optional)*: Relative path to the app's logo image within the launcher assets (e.g., `"logos/hbomax.svg"`).
   - **`url`** *(optional)*: Target web application URL for WebView2 services.
   - **`executablePath`** *(optional)*: Path to a native desktop executable (such as `Plex HTPC.exe`) launched in front of the kiosk with global `F1` return-to-launchpad support.
   - **`navigator`** *(optional)*: D-Pad navigation strategy (`"hbomax"`, `"primevideo"`, `"spatial"`, or `"native"`).
@@ -175,7 +176,7 @@ w:\CSharpProjects\HomeTheater\
 ├── AGENTS.md
 ├── README.md
 ├── TvKioskWrapper\
-│   ├── Assets\Launcher\                # Local 10-foot Launchpad (index.html, launcher.css, launcher.js)
+│   ├── Assets\Launcher\                # Local 10-foot Launchpad (index.html, launcher.css, launcher.js, logos/)
 │   ├── Automation\                     # Localhost HTTP automation server (--automation) & JS inspectors
 │   ├── Configuration\                  # AppConfig, ConfigLoader & StreamingServicePreset models
 │   ├── Input\                          # InputController & BrowserShortcutFilter

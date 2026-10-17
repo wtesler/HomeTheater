@@ -24,9 +24,9 @@ dotnet test --nologo -v q --filter Feature=osk
 ## Architecture & Directory Layout
 Code is organized into small, single-purpose files grouped by domain under `TvKioskWrapper/`:
 
-- **`config.json`** — Single source of truth for application settings and the list of streaming service presets (`name`, `url`, `executablePath`, `subtitle`, `accentColor`, `navigator`, `spatialNavigation`, `userAgent`).
+- **`config.json`** — Single source of truth for application settings and the list of streaming service presets (`name`, `url`, `executablePath`, `subtitle`, `logo`, `accentColor`, `navigator`, `spatialNavigation`, `userAgent`).
 - **`MainWindow.xaml` / `MainWindow.xaml.cs`** — Fullscreen borderless window coordinating the shell, input controller, cursor auto-hider, external app manager, and WebView2 manager.
-- **`Assets/Launcher/`** (`index.html`, `launcher.css`, `launcher.js`) — Local Launchpad homepage mapped to `https://launchpad.example/index.html`. Renders the app grid dynamically from `config.json`.
+- **`Assets/Launcher/`** (`index.html`, `launcher.css`, `launcher.js`, `logos/`) — Local Launchpad homepage mapped to `https://launchpad.example/index.html`. Renders the app grid with vector logos dynamically from `config.json`.
 - **`Configuration/`** — Loads `config.json` and command-line overrides (`--url`, `--debug`, `--cursor-timeout`) into `AppConfig` and matches navigated URLs to `StreamingServicePreset` entries.
 - **`WebView/`** — Initializes the WebView2 environment (PlayReady/HEVC browser flags, isolated profile in `%LocalAppData%\TvKioskWrapper\Profile`), maps the virtual host for the Launchpad, and applies per-service User-Agent overrides.
 - **`Input/`** — Intercepts remote/keyboard input (`F1`/`Home` for Launchpad, `F12`/`Alt+F4`/`Ctrl+Q` to exit, `Escape`/`Backspace` for back navigation, `MediaPlayPause`, and D-Pad arrow keys) and blocks unwanted browser shortcuts.

@@ -13,6 +13,9 @@ public sealed class StreamingServicePreset
     [JsonPropertyName("subtitle")]
     public string Subtitle { get; set; } = string.Empty;
 
+    [JsonPropertyName("logo")]
+    public string? Logo { get; set; }
+
     [JsonPropertyName("url")]
     public string Url { get; set; } = string.Empty;
 

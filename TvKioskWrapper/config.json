@@ -6,6 +6,7 @@
     {
       "name": "HBO Max",
       "subtitle": "4K UHD & Dolby Vision / HDR",
+      "logo": "logos/hbomax.svg",
       "url": "https://play.hbomax.com",
       "accentColor": "#002BE7",
       "navigator": "hbomax",
@@ -14,6 +15,7 @@
     {
       "name": "YouTube on TV",
       "subtitle": "Native 10-Foot 4K HDR UI",
+      "logo": "logos/youtube.svg",
       "url": "https://www.youtube.com/tv",
       "accentColor": "#FF0000",
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Cobalt/27.lts.3.1040976-gold (unlike Gecko) v8/13.8.258.54-jit gles Starboard/18, TvKioskWrapper_DESKTOP_x8664_2026/1.0.0 (TvKioskWrapper, Windows)",
@@ -23,6 +25,7 @@
     {
       "name": "Plex HTPC",
       "subtitle": "Native 10-Foot Home Media Player",
+      "logo": "logos/plex.svg",
       "executablePath": "C:\\Program Files\\Plex\\Plex HTPC\\Plex HTPC.exe",
       "accentColor": "#E5A00D",
       "spatialNavigation": false
@@ -30,6 +33,7 @@
     {
       "name": "Prime Video",
       "subtitle": "Amazon Originals & Movies",
+      "logo": "logos/primevideo.svg",
       "url": "https://www.primevideo.com",
       "accentColor": "#00A8E1",
       "navigator": "primevideo",
