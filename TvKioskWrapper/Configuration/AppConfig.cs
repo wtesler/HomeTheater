@@ -17,6 +17,12 @@ public sealed class AppConfig
     [JsonPropertyName("debug")]
     public bool Debug { get; set; }
 
+    [JsonIgnore]
+    public bool AutomationEnabled { get; set; }
+
+    [JsonIgnore]
+    public int AutomationPort { get; set; } = 9333;
+
     [JsonPropertyName("services")]
     public List<StreamingServicePreset> Services { get; set; } = [];
 

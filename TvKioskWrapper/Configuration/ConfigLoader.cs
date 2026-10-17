@@ -56,6 +56,16 @@ public static class ConfigLoader
                     config.DefaultUrl = customUrl;
                 }
             }
+            else if (string.Equals(arg, "--automation", StringComparison.OrdinalIgnoreCase))
+            {
+                config.AutomationEnabled = true;
+            }
+            else if (arg.StartsWith("--automation-port=", StringComparison.OrdinalIgnoreCase) &&
+                     int.TryParse(arg["--automation-port=".Length..], out int port))
+            {
+                config.AutomationEnabled = true;
+                config.AutomationPort = port;
+            }
         }
     }
 }

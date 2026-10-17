@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using Microsoft.Web.WebView2.Core;
+using TvKioskWrapper.Automation;
 using TvKioskWrapper.Configuration;
 using TvKioskWrapper.Input;
 using TvKioskWrapper.Interop;
@@ -22,6 +23,7 @@ public partial class MainWindow : Window, IKioskShellActions
     private readonly WebViewManager _webViewManager;
     private readonly CursorAutoHider _cursorAutoHider;
     private readonly InputController _inputController;
+    private readonly AutomationServer? _automationServer;
 
     private bool _isInitialized;
 
@@ -48,29 +50,53 @@ public partial class MainWindow : Window, IKioskShellActions
 
         _inputController = new InputController(KioskWebView, _scriptInjector, this);
 
+        if (_config.AutomationEnabled)
+        {
+            Topmost = false;
+            ShowActivated = false;
+            ShowInTaskbar = false;
+            WindowState = WindowState.Normal;
+            Width = 1920;
+            Height = 1080;
+            Left = -3200;
+            Top = -3200;
+            _automationServer = new AutomationServer(KioskWebView, _scriptInjector, this, _config.AutomationPort);
+        }
+
         Loaded += OnWindowLoaded;
     }
 
     private async void OnWindowLoaded(object sender, RoutedEventArgs e)
     {
-        ActivateNativeWindow();
-        _cursorAutoHider.Start();
+        if (!_config.AutomationEnabled)
+        {
+            ActivateNativeWindow();
+            _cursorAutoHider.Start();
+        }
 
         await _webViewManager.InitializeAsync();
         _isInitialized = true;
+        _automationServer?.Start();
         NavigateToUrl(_config.DefaultUrl);
     }
 
     private async void Window_Activated(object sender, EventArgs e)
     {
-        ActivateNativeWindow();
+        if (!_config.AutomationEnabled)
+        {
+            ActivateNativeWindow();
+        }
         if (_isInitialized)
         {
-            _webViewManager.EnsureBrowserFocus();
+            if (!_config.AutomationEnabled)
+            {
+                _webViewManager.EnsureBrowserFocus();
+            }
             await _scriptInjector.InjectFocusAndScrollbarStylesAsync(
                 KioskWebView,
                 _webViewManager.IsSpatialNavigationEnabled,
-                IsOnHomePage);
+                IsOnHomePage,
+                _webViewManager.ActiveNavigator);
         }
     }
 
@@ -86,6 +112,7 @@ public partial class MainWindow : Window, IKioskShellActions
 
     private void Window_Closed(object sender, EventArgs e)
     {
+        _automationServer?.Dispose();
         _cursorAutoHider.StopAndRestore();
     }
 

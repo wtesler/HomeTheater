@@ -30,6 +30,8 @@ public sealed class WebViewManager
 
     public bool IsSpatialNavigationEnabled { get; private set; }
 
+    public string? ActiveNavigator { get; private set; }
+
     public bool IsOnHomePage => LauncherHostManager.IsLauncherUrl(_webView.Source?.ToString());
 
     public event EventHandler<CoreWebView2NavigationCompletedEventArgs>? NavigationCompleted;
@@ -88,6 +90,11 @@ public sealed class WebViewManager
     /// </summary>
     public bool EnsureBrowserFocus()
     {
+        if (_config.AutomationEnabled)
+        {
+            return false;
+        }
+
         var sink = (IKeyboardInputSink)_webView;
         bool alreadyHadNativeFocus = sink.HasFocusWithin();
 
@@ -131,6 +138,7 @@ public sealed class WebViewManager
 
         IsSpatialNavigationEnabled = !LauncherHostManager.IsLauncherUrl(url) &&
                                      (preset?.SpatialNavigation ?? true);
+        ActiveNavigator = preset?.Navigator;
 
         _webView.CoreWebView2.Navigate(url);
         EnsureBrowserFocus();
@@ -150,7 +158,23 @@ public sealed class WebViewManager
     private async void OnCoreWebViewNavigationCompleted(object? sender, CoreWebView2NavigationCompletedEventArgs e)
     {
         EnsureBrowserFocus();
-        await _scriptInjector.InjectFocusAndScrollbarStylesAsync(_webView, IsSpatialNavigationEnabled, IsOnHomePage);
+
+        string? currentUrl = _webView.Source?.ToString();
+        if (!LauncherHostManager.IsLauncherUrl(currentUrl))
+        {
+            StreamingServicePreset? matched = _config.FindMatchingPreset(currentUrl);
+            if (matched is not null)
+            {
+                IsSpatialNavigationEnabled = matched.SpatialNavigation;
+                ActiveNavigator = matched.Navigator;
+            }
+        }
+
+        await _scriptInjector.InjectFocusAndScrollbarStylesAsync(
+            _webView,
+            IsSpatialNavigationEnabled,
+            IsOnHomePage,
+            ActiveNavigator);
         NavigationCompleted?.Invoke(this, e);
     }
 

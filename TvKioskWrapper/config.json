@@ -8,6 +8,7 @@
       "subtitle": "4K UHD & Dolby Vision / HDR",
       "url": "https://play.hbomax.com",
       "accentColor": "#002BE7",
+      "navigator": "hbomax",
       "spatialNavigation": true
     },
     {
@@ -16,6 +17,7 @@
       "url": "https://www.youtube.com/tv",
       "accentColor": "#FF0000",
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Cobalt/27.lts.3.1040976-gold (unlike Gecko) v8/13.8.258.54-jit gles Starboard/18, TvKioskWrapper_DESKTOP_x8664_2026/1.0.0 (TvKioskWrapper, Windows)",
+      "navigator": "native",
       "spatialNavigation": false
     },
     {
@@ -23,6 +25,7 @@
       "subtitle": "Home Media Server",
       "url": "https://app.plex.tv/desktop/#!/tv",
       "accentColor": "#E5A00D",
+      "navigator": "native",
       "spatialNavigation": false
     },
     {
@@ -30,6 +33,7 @@
       "subtitle": "Amazon Originals & Movies",
       "url": "https://www.primevideo.com",
       "accentColor": "#00A8E1",
+      "navigator": "spatial",
       "spatialNavigation": true
     }
   ]

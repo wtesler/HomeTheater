@@ -22,6 +22,9 @@ public sealed class StreamingServicePreset
     [JsonPropertyName("userAgent")]
     public string? UserAgent { get; set; }
 
+    [JsonPropertyName("navigator")]
+    public string? Navigator { get; set; }
+
     [JsonPropertyName("spatialNavigation")]
     public bool SpatialNavigation { get; set; } = true;
 }

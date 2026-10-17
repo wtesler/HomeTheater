@@ -1,12 +1,13 @@
 using System.Windows.Input;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
+using TvKioskWrapper.Scripts.Navigators;
 
 namespace TvKioskWrapper.Scripts;
 
 /// <summary>
 /// Module D: Orchestrates script injection into WebView2 for scrollbar suppression,
-/// Cobalt 4K60/HDR capability emulation, auto-focus priming, and 2D spatial navigation.
+/// Cobalt 4K60/HDR capability emulation, auto-focus priming, and per-app semantic D-Pad navigation.
 /// </summary>
 public sealed class ScriptInjector
 {
@@ -15,7 +16,11 @@ public sealed class ScriptInjector
         await coreWebView.AddScriptToExecuteOnDocumentCreatedAsync(DomBootstrapScripts.DocumentCreatedBootstrap);
     }
 
-    public async Task InjectFocusAndScrollbarStylesAsync(WebView2 webView, bool enableSpatialNavigation = true, bool isHomePage = false)
+    public async Task InjectFocusAndScrollbarStylesAsync(
+        WebView2 webView,
+        bool enableSpatialNavigation = true,
+        bool isHomePage = false,
+        string? navigatorType = null)
     {
         if (webView.CoreWebView2 is null)
         {
@@ -34,7 +39,17 @@ public sealed class ScriptInjector
 
             if (enableSpatialNavigation && !isHomePage)
             {
-                await webView.CoreWebView2.ExecuteScriptAsync(SpatialNavigationScript.Source);
+                string navScript = navigatorType?.ToLowerInvariant() switch
+                {
+                    "hbomax" => HboMaxNavigatorScript.Source,
+                    "native" => string.Empty,
+                    _ => SpatialNavigationScript.Source
+                };
+
+                if (!string.IsNullOrEmpty(navScript))
+                {
+                    await webView.CoreWebView2.ExecuteScriptAsync(navScript);
+                }
             }
         }
         catch
@@ -57,6 +72,8 @@ public sealed class ScriptInjector
             Key.Left => ("ArrowLeft", 37),
             Key.Right => ("ArrowRight", 39),
             Key.Enter => ("Enter", 13),
+            Key.Escape => ("Escape", 27),
+            Key.Back => ("Backspace", 8),
             _ => (null, 0)
         };
 
