@@ -17,6 +17,7 @@ public sealed class ExternalAppManager : IDisposable
     private const int HotKeyIdExitF12 = 9002;
     private const int HotKeyIdAudioF2 = 9003;
     private const int HotKeyIdVideoF3 = 9004;
+    private const int HotKeyIdHomeTheaterF4 = 9005;
 
     private readonly Window _ownerWindow;
     private HwndSource? _hwndSource;
@@ -29,6 +30,7 @@ public sealed class ExternalAppManager : IDisposable
     public event Action? ReturnToLauncherRequested;
     public event Action? AudioToggleRequested;
     public event Action? VideoPresetRotateRequested;
+    public event Action? EnableHomeTheaterRequested;
 
     public ExternalAppManager(Window ownerWindow)
     {
@@ -230,6 +232,7 @@ public sealed class ExternalAppManager : IDisposable
         NativeMethods.RegisterHotKey(hwnd, HotKeyIdHomeF1, NativeMethods.MOD_NOREPEAT, NativeMethods.VK_F1);
         NativeMethods.RegisterHotKey(hwnd, HotKeyIdAudioF2, NativeMethods.MOD_NOREPEAT, NativeMethods.VK_F2);
         NativeMethods.RegisterHotKey(hwnd, HotKeyIdVideoF3, NativeMethods.MOD_NOREPEAT, NativeMethods.VK_F3);
+        NativeMethods.RegisterHotKey(hwnd, HotKeyIdHomeTheaterF4, NativeMethods.MOD_NOREPEAT, NativeMethods.VK_F4);
         NativeMethods.RegisterHotKey(hwnd, HotKeyIdExitF12, NativeMethods.MOD_NOREPEAT, NativeMethods.VK_F12);
         _hotKeysRegistered = true;
     }
@@ -247,6 +250,7 @@ public sealed class ExternalAppManager : IDisposable
             NativeMethods.UnregisterHotKey(hwnd, HotKeyIdHomeF1);
             NativeMethods.UnregisterHotKey(hwnd, HotKeyIdAudioF2);
             NativeMethods.UnregisterHotKey(hwnd, HotKeyIdVideoF3);
+            NativeMethods.UnregisterHotKey(hwnd, HotKeyIdHomeTheaterF4);
             NativeMethods.UnregisterHotKey(hwnd, HotKeyIdExitF12);
         }
 
@@ -273,6 +277,11 @@ public sealed class ExternalAppManager : IDisposable
             {
                 handled = true;
                 Application.Current?.Dispatcher.BeginInvoke(() => VideoPresetRotateRequested?.Invoke());
+            }
+            else if (id == HotKeyIdHomeTheaterF4)
+            {
+                handled = true;
+                Application.Current?.Dispatcher.BeginInvoke(() => EnableHomeTheaterRequested?.Invoke());
             }
             else if (id == HotKeyIdExitF12)
             {

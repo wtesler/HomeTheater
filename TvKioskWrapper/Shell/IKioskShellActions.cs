@@ -15,4 +15,5 @@ public interface IKioskShellActions
     void HideCursorImmediately();
     void ToggleAudioDevice();
     void RotateVideoPreset();
+    void EnableHomeTheaterMode();
 }

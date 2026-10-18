@@ -51,6 +51,7 @@ public partial class MainWindow : Window, IKioskShellActions
         _externalAppManager.ReturnToLauncherRequested += NavigateToHome;
         _externalAppManager.AudioToggleRequested += ToggleAudioDevice;
         _externalAppManager.VideoPresetRotateRequested += RotateVideoPreset;
+        _externalAppManager.EnableHomeTheaterRequested += EnableHomeTheaterMode;
 
         _colorControlManager = new ColorControlManager(_config.ColorControl, isAutomation: _config.AutomationEnabled);
         _audioDeviceManager = new AudioDeviceManager();
@@ -169,6 +170,17 @@ public partial class MainWindow : Window, IKioskShellActions
         {
             _toastWindow.ShowVideoPresetToast(presetName);
         }
+    }
+
+    public void EnableHomeTheaterMode()
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.BeginInvoke(EnableHomeTheaterMode);
+            return;
+        }
+
+        _colorControlManager.EnableHomeTheaterMode();
     }
 
     public void HideCursorImmediately() => _cursorAutoHider.HideImmediately();

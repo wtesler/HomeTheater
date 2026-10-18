@@ -104,6 +104,7 @@ Map your physical remote buttons in the FLIRC application to the following stand
 | **Home / Menu** | `F1` or `Home` | Closes any active external application (e.g., `Plex HTPC`) and returns to the local 10-foot Home Theater Launchpad (`https://launchpad.example/index.html`). |
 | **Audio Output** | `F2` | Rotates in-order through available Windows audio playback endpoints with a 10-foot HUD toast overlay. |
 | **Video Preset** | `F3` | Rotates through LG TV video presets (Standard, Game, Cinema Home) via ColorControl with a 10-foot HUD toast overlay. |
+| **Home Theater Mode** | `F4` | Re-applies the LG TV Home Theater display preset via ColorControl. |
 | **Play / Pause** | `MediaPlayPause` | Toggles play/pause on the active HTML5 `<video>` element. |
 | **Power / Exit** | `F12`, `Alt + F4`, `Ctrl + Q` | Cleanly closes any launched external app, exits the kiosk, and restores the system cursor. |
 | **GPU Diagnostics** | `Ctrl + Shift + G` | Navigates to `edge://gpu` to verify PlayReady SL3000 & HEVC hardware support. |

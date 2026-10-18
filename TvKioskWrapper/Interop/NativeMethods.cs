@@ -19,6 +19,7 @@ internal static partial class NativeMethods
     internal const uint VK_F1 = 0x70;
     internal const uint VK_F2 = 0x71;
     internal const uint VK_F3 = 0x72;
+    internal const uint VK_F4 = 0x73;
     internal const uint VK_F12 = 0x7B;
     internal const int SW_RESTORE = 9;
 

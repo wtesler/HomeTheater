@@ -71,6 +71,13 @@ public sealed class InputController
             return;
         }
 
+        if (key == Key.F4 && !modifiers.HasFlag(ModifierKeys.Alt))
+        {
+            handled = true;
+            _shell.EnableHomeTheaterMode();
+            return;
+        }
+
         if (BrowserShortcutFilter.IsGpuDiagnosticsShortcut(key, modifiers))
         {
             handled = true;
@@ -140,6 +147,14 @@ public sealed class InputController
         {
             e.Handled = true;
             _shell.RotateVideoPreset();
+            return;
+        }
+
+        // 8. Enable Home Theater mode (F4)
+        if (key == Key.F4 && !modifiers.HasFlag(ModifierKeys.Alt))
+        {
+            e.Handled = true;
+            _shell.EnableHomeTheaterMode();
             return;
         }
 
