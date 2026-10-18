@@ -25,6 +25,8 @@ public partial class MainWindow : Window, IKioskShellActions
     private readonly InputController _inputController;
     private readonly ExternalAppManager _externalAppManager;
     private readonly ColorControlManager _colorControlManager;
+    private readonly AudioDeviceManager _audioDeviceManager;
+    private readonly AudioToastWindow _audioToastWindow;
     private readonly AutomationServer? _automationServer;
 
     private bool _isInitialized;
@@ -47,7 +49,11 @@ public partial class MainWindow : Window, IKioskShellActions
 
         _externalAppManager = new ExternalAppManager(this);
         _externalAppManager.ReturnToLauncherRequested += NavigateToHome;
+        _externalAppManager.AudioToggleRequested += ToggleAudioDevice;
+
         _colorControlManager = new ColorControlManager(_config.ColorControl, isAutomation: _config.AutomationEnabled);
+        _audioDeviceManager = new AudioDeviceManager();
+        _audioToastWindow = new AudioToastWindow(this);
 
         _cursorAutoHider = new CursorAutoHider(
             this,
@@ -126,11 +132,27 @@ public partial class MainWindow : Window, IKioskShellActions
 
     private void Window_Closed(object sender, EventArgs e)
     {
+        _audioToastWindow.Close();
         _colorControlManager.DisableHomeTheaterMode();
         _colorControlManager.Dispose();
         _externalAppManager.Dispose();
         _automationServer?.Dispose();
         _cursorAutoHider.StopAndRestore();
+    }
+
+    public void ToggleAudioDevice()
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.BeginInvoke(ToggleAudioDevice);
+            return;
+        }
+
+        AudioDeviceManager.AudioDeviceInfo? next = _audioDeviceManager.ToggleNextPlaybackDevice();
+        if (next is not null)
+        {
+            _audioToastWindow.ShowToast(next.Name);
+        }
     }
 
     public void HideCursorImmediately() => _cursorAutoHider.HideImmediately();

@@ -17,8 +17,23 @@ internal static partial class NativeMethods
     internal const int WM_HOTKEY = 0x0312;
     internal const uint MOD_NOREPEAT = 0x4000;
     internal const uint VK_F1 = 0x70;
+    internal const uint VK_F2 = 0x71;
     internal const uint VK_F12 = 0x7B;
     internal const int SW_RESTORE = 9;
+
+    internal const int GWL_EXSTYLE = -20;
+    internal const int WS_EX_TOOLWINDOW = 0x00000080;
+    internal const int WS_EX_TRANSPARENT = 0x00000020;
+    internal const int WS_EX_NOACTIVATE = 0x08000000;
+
+    [LibraryImport("user32.dll", EntryPoint = "GetWindowLongW")]
+    internal static partial int GetWindowLong(nint hWnd, int nIndex);
+
+    [LibraryImport("user32.dll", EntryPoint = "SetWindowLongW")]
+    internal static partial int SetWindowLong(nint hWnd, int nIndex, int dwNewLong);
+
+    [LibraryImport("ole32.dll")]
+    internal static partial int PropVariantClear(ref AudioInterop.PropVariant pvar);
 
     [LibraryImport("user32.dll")]
     private static partial int ShowCursor([MarshalAs(UnmanagedType.Bool)] bool bShow);

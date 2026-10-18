@@ -15,6 +15,7 @@ public sealed class ExternalAppManager : IDisposable
 {
     private const int HotKeyIdHomeF1 = 9001;
     private const int HotKeyIdExitF12 = 9002;
+    private const int HotKeyIdAudioF2 = 9003;
 
     private readonly Window _ownerWindow;
     private HwndSource? _hwndSource;
@@ -25,6 +26,7 @@ public sealed class ExternalAppManager : IDisposable
     public bool IsAppRunning => _activeProcess is { HasExited: false };
 
     public event Action? ReturnToLauncherRequested;
+    public event Action? AudioToggleRequested;
 
     public ExternalAppManager(Window ownerWindow)
     {
@@ -224,6 +226,7 @@ public sealed class ExternalAppManager : IDisposable
         }
 
         NativeMethods.RegisterHotKey(hwnd, HotKeyIdHomeF1, NativeMethods.MOD_NOREPEAT, NativeMethods.VK_F1);
+        NativeMethods.RegisterHotKey(hwnd, HotKeyIdAudioF2, NativeMethods.MOD_NOREPEAT, NativeMethods.VK_F2);
         NativeMethods.RegisterHotKey(hwnd, HotKeyIdExitF12, NativeMethods.MOD_NOREPEAT, NativeMethods.VK_F12);
         _hotKeysRegistered = true;
     }
@@ -239,6 +242,7 @@ public sealed class ExternalAppManager : IDisposable
         if (hwnd != nint.Zero)
         {
             NativeMethods.UnregisterHotKey(hwnd, HotKeyIdHomeF1);
+            NativeMethods.UnregisterHotKey(hwnd, HotKeyIdAudioF2);
             NativeMethods.UnregisterHotKey(hwnd, HotKeyIdExitF12);
         }
 
@@ -255,6 +259,11 @@ public sealed class ExternalAppManager : IDisposable
                 handled = true;
                 CloseActiveApp();
                 ReturnToLauncherRequested?.Invoke();
+            }
+            else if (id == HotKeyIdAudioF2)
+            {
+                handled = true;
+                Application.Current?.Dispatcher.BeginInvoke(() => AudioToggleRequested?.Invoke());
             }
             else if (id == HotKeyIdExitF12)
             {

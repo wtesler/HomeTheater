@@ -102,6 +102,7 @@ Map your physical remote buttons in the FLIRC application to the following stand
 | **OK / Select** | `Enter` | Launches the selected app tile on the Home Page, activates the focused button/tile/dropdown, or focuses/submits search inputs. |
 | **Back** | `BrowserBack`, `Escape`, `Backspace` | Closes open dropdowns/drawers/video players, passes `Escape`/`Backspace` to native TV apps (`youtube.com/tv`), navigates back in history, or returns to the Launchpad if at the top-level page. |
 | **Home / Menu** | `F1` or `Home` | Closes any active external application (e.g., `Plex HTPC`) and returns to the local 10-foot Home Theater Launchpad (`https://launchpad.example/index.html`). |
+| **Audio Output** | `F2` | Rotates in-order through available Windows audio playback endpoints with a 10-foot HUD toast overlay. |
 | **Play / Pause** | `MediaPlayPause` | Toggles play/pause on the active HTML5 `<video>` element. |
 | **Power / Exit** | `F12`, `Alt + F4`, `Ctrl + Q` | Cleanly closes any launched external app, exits the kiosk, and restores the system cursor. |
 | **GPU Diagnostics** | `Ctrl + Shift + G` | Navigates to `edge://gpu` to verify PlayReady SL3000 & HEVC hardware support. |

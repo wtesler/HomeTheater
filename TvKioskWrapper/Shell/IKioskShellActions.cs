@@ -13,4 +13,5 @@ public interface IKioskShellActions
     void NavigateToHome();
     void NavigateToUrl(string url, StreamingServicePreset? preset = null);
     void HideCursorImmediately();
+    void ToggleAudioDevice();
 }

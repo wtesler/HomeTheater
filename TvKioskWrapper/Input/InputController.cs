@@ -57,6 +57,13 @@ public sealed class InputController
             return;
         }
 
+        if (key == Key.F2)
+        {
+            handled = true;
+            _shell.ToggleAudioDevice();
+            return;
+        }
+
         if (BrowserShortcutFilter.IsGpuDiagnosticsShortcut(key, modifiers))
         {
             handled = true;
@@ -110,6 +117,14 @@ public sealed class InputController
             e.Handled = true;
             _shell.HideCursorImmediately();
             _shell.NavigateToHome();
+            return;
+        }
+
+        // 6. Audio output toggle (F2) -> In-order rotation with toast HUD
+        if (key == Key.F2)
+        {
+            e.Handled = true;
+            _shell.ToggleAudioDevice();
             return;
         }
 
