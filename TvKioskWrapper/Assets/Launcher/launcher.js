@@ -210,7 +210,20 @@
         renderServices(services);
     };
 
+    function updateDebugVisibility(debugEnabled) {
+        const gpuHint = document.getElementById("gpuDiagnosticsHint");
+        if (gpuHint) {
+            gpuHint.style.display = debugEnabled ? "" : "none";
+        }
+    }
+
+    window.__setKioskDebug = function (debugEnabled) {
+        window.__KIOSK_DEBUG__ = Boolean(debugEnabled);
+        updateDebugVisibility(window.__KIOSK_DEBUG__);
+    };
+
     updateClock();
     setInterval(updateClock, 10000);
     renderServices(getConfiguredServices());
+    updateDebugVisibility(Boolean(window.__KIOSK_DEBUG__));
 })();

@@ -45,11 +45,21 @@ public sealed class LauncherHostManager
             CoreWebView2HostResourceAccessKind.Allow);
 
         string servicesJson = JsonSerializer.Serialize(_config.Services);
+#if DEBUG
+        bool showGpuDiagnostics = true;
+#else
+        bool showGpuDiagnostics = _config.Debug;
+#endif
+
         string injectServicesScript = $$"""
             if (location.hostname === '{{VirtualHostName}}') {
                 window.__KIOSK_SERVICES__ = {{servicesJson}};
+                window.__KIOSK_DEBUG__ = {{showGpuDiagnostics.ToString().ToLowerInvariant()}};
                 if (typeof window.__setKioskServices === 'function') {
                     window.__setKioskServices(window.__KIOSK_SERVICES__);
+                }
+                if (typeof window.__setKioskDebug === 'function') {
+                    window.__setKioskDebug(window.__KIOSK_DEBUG__);
                 }
             }
             """;
