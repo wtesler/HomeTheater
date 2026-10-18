@@ -14,6 +14,9 @@ public interface IKioskShellActions
     void NavigateToUrl(string url, StreamingServicePreset? preset = null);
     void HideCursorImmediately();
     void ToggleAudioDevice();
-    void RotateVideoPreset();
     void EnableHomeTheaterMode();
+    bool IsVideoPresetModalOpen { get; }
+    void ToggleVideoPresetModal();
+    void CloseVideoPresetModal();
+    void HandleVideoPresetModalKey(System.Windows.Input.Key key);
 }

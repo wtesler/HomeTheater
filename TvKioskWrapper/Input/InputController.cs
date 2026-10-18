@@ -44,6 +44,10 @@ public sealed class InputController
 
         if (BrowserShortcutFilter.IsExitShortcut(key, modifiers))
         {
+            if (_shell.IsVideoPresetModalOpen)
+            {
+                _shell.CloseVideoPresetModal();
+            }
             handled = true;
             Application.Current?.Dispatcher.BeginInvoke(() => Application.Current.Shutdown());
             return;
@@ -51,6 +55,10 @@ public sealed class InputController
 
         if (key is Key.F1 or Key.Home)
         {
+            if (_shell.IsVideoPresetModalOpen)
+            {
+                _shell.CloseVideoPresetModal();
+            }
             handled = true;
             _shell.HideCursorImmediately();
             _shell.NavigateToHome();
@@ -59,6 +67,10 @@ public sealed class InputController
 
         if (key == Key.F2)
         {
+            if (_shell.IsVideoPresetModalOpen)
+            {
+                _shell.CloseVideoPresetModal();
+            }
             handled = true;
             _shell.ToggleAudioDevice();
             return;
@@ -67,15 +79,30 @@ public sealed class InputController
         if (key == Key.F3)
         {
             handled = true;
-            _shell.RotateVideoPreset();
+            _shell.ToggleVideoPresetModal();
             return;
         }
 
         if (key == Key.F4 && !modifiers.HasFlag(ModifierKeys.Alt))
         {
+            if (_shell.IsVideoPresetModalOpen)
+            {
+                _shell.CloseVideoPresetModal();
+            }
             handled = true;
             _shell.EnableHomeTheaterMode();
             return;
+        }
+
+        // If the video preset modal is open, intercept navigation & confirmation keys
+        if (_shell.IsVideoPresetModalOpen)
+        {
+            if (key is Key.Up or Key.Down or Key.Left or Key.Right or Key.Enter or Key.Escape or Key.Back or Key.BrowserBack)
+            {
+                handled = true;
+                _shell.HandleVideoPresetModalKey(key);
+                return;
+            }
         }
 
         if (BrowserShortcutFilter.IsGpuDiagnosticsShortcut(key, modifiers))
@@ -99,9 +126,24 @@ public sealed class InputController
         // 1. Power / Exit safeguards: F12, Alt+F4, or Ctrl+Q
         if (BrowserShortcutFilter.IsExitShortcut(key, modifiers))
         {
+            if (_shell.IsVideoPresetModalOpen)
+            {
+                _shell.CloseVideoPresetModal();
+            }
             e.Handled = true;
             Application.Current?.Dispatcher.BeginInvoke(() => Application.Current.Shutdown());
             return;
+        }
+
+        // If the video preset modal is open, intercept navigation & confirmation keys
+        if (_shell.IsVideoPresetModalOpen)
+        {
+            if (key is Key.Up or Key.Down or Key.Left or Key.Right or Key.Enter or Key.Escape or Key.Back or Key.BrowserBack or Key.F3)
+            {
+                e.Handled = true;
+                _shell.HandleVideoPresetModalKey(key);
+                return;
+            }
         }
 
         // 2. Diagnostic shortcut for Section 6.2 verification: Ctrl+Shift+G -> edge://gpu
@@ -142,11 +184,11 @@ public sealed class InputController
             return;
         }
 
-        // 7. Video preset toggle (F3) -> In-order rotation with toast HUD
+        // 7. Video preset modal popup (F3) -> D-Pad interactive selection
         if (key == Key.F3)
         {
             e.Handled = true;
-            _shell.RotateVideoPreset();
+            _shell.ToggleVideoPresetModal();
             return;
         }
 

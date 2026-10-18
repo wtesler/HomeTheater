@@ -29,7 +29,7 @@ public sealed class ExternalAppManager : IDisposable
 
     public event Action? ReturnToLauncherRequested;
     public event Action? AudioToggleRequested;
-    public event Action? VideoPresetRotateRequested;
+    public event Action? VideoPresetMenuRequested;
     public event Action? EnableHomeTheaterRequested;
 
     public ExternalAppManager(Window ownerWindow)
@@ -276,7 +276,7 @@ public sealed class ExternalAppManager : IDisposable
             else if (id == HotKeyIdVideoF3)
             {
                 handled = true;
-                Application.Current?.Dispatcher.BeginInvoke(() => VideoPresetRotateRequested?.Invoke());
+                Application.Current?.Dispatcher.BeginInvoke(() => VideoPresetMenuRequested?.Invoke());
             }
             else if (id == HotKeyIdHomeTheaterF4)
             {
@@ -292,6 +292,17 @@ public sealed class ExternalAppManager : IDisposable
         }
 
         return nint.Zero;
+    }
+
+    /// <summary>
+    /// Restores foreground focus to the active external application if one is currently running.
+    /// </summary>
+    public void RestoreActiveAppFocus()
+    {
+        if (_activeProcess is not null && !_activeProcess.HasExited)
+        {
+            _ = BringProcessToFrontAsync(_activeProcess);
+        }
     }
 
     public void Dispose()

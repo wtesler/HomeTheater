@@ -27,6 +27,7 @@ public partial class MainWindow : Window, IKioskShellActions
     private readonly ColorControlManager _colorControlManager;
     private readonly AudioDeviceManager _audioDeviceManager;
     private readonly ToastOverlayWindow _toastWindow;
+    private readonly VideoPresetModalWindow _videoPresetModalWindow;
     private readonly AutomationServer? _automationServer;
 
     private bool _isInitialized;
@@ -50,12 +51,15 @@ public partial class MainWindow : Window, IKioskShellActions
         _externalAppManager = new ExternalAppManager(this);
         _externalAppManager.ReturnToLauncherRequested += NavigateToHome;
         _externalAppManager.AudioToggleRequested += ToggleAudioDevice;
-        _externalAppManager.VideoPresetRotateRequested += RotateVideoPreset;
+        _externalAppManager.VideoPresetMenuRequested += ToggleVideoPresetModal;
         _externalAppManager.EnableHomeTheaterRequested += EnableHomeTheaterMode;
 
         _colorControlManager = new ColorControlManager(_config.ColorControl, isAutomation: _config.AutomationEnabled);
         _audioDeviceManager = new AudioDeviceManager();
         _toastWindow = new ToastOverlayWindow(this);
+        _videoPresetModalWindow = new VideoPresetModalWindow(this);
+        _videoPresetModalWindow.PresetSelected += OnVideoPresetSelected;
+        _videoPresetModalWindow.ModalClosed += OnVideoPresetModalClosed;
 
         _cursorAutoHider = new CursorAutoHider(
             this,
@@ -135,6 +139,7 @@ public partial class MainWindow : Window, IKioskShellActions
     private void Window_Closed(object sender, EventArgs e)
     {
         _toastWindow.Close();
+        _videoPresetModalWindow.Close();
         _colorControlManager.DisableHomeTheaterMode();
         _colorControlManager.Dispose();
         _externalAppManager.Dispose();
@@ -157,18 +162,68 @@ public partial class MainWindow : Window, IKioskShellActions
         }
     }
 
-    public void RotateVideoPreset()
+    public bool IsVideoPresetModalOpen => _videoPresetModalWindow.IsModalOpen;
+
+    public void ToggleVideoPresetModal()
     {
         if (!Dispatcher.CheckAccess())
         {
-            Dispatcher.BeginInvoke(RotateVideoPreset);
+            Dispatcher.BeginInvoke(ToggleVideoPresetModal);
             return;
         }
 
-        string presetName = _colorControlManager.RotateVideoPreset();
-        if (!string.IsNullOrWhiteSpace(presetName))
+        if (_videoPresetModalWindow.IsModalOpen)
         {
-            _toastWindow.ShowVideoPresetToast(presetName);
+            _videoPresetModalWindow.CloseModal();
+            return;
+        }
+
+        var presets = _colorControlManager.VideoPresetNames;
+        _videoPresetModalWindow.ShowModal(presets);
+    }
+
+    public void CloseVideoPresetModal()
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.BeginInvoke(CloseVideoPresetModal);
+            return;
+        }
+
+        _videoPresetModalWindow.CloseModal();
+    }
+
+    public void HandleVideoPresetModalKey(Key key)
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.BeginInvoke(() => HandleVideoPresetModalKey(key));
+            return;
+        }
+
+        _videoPresetModalWindow.HandleKey(key);
+    }
+
+    private void OnVideoPresetSelected(int selectedIndex)
+    {
+        _colorControlManager.SetVideoPreset(selectedIndex);
+        RestoreFocusAfterModal();
+    }
+
+    private void OnVideoPresetModalClosed()
+    {
+        RestoreFocusAfterModal();
+    }
+
+    private void RestoreFocusAfterModal()
+    {
+        if (_externalAppManager.IsAppRunning)
+        {
+            _externalAppManager.RestoreActiveAppFocus();
+        }
+        else
+        {
+            EnsureBrowserFocus();
         }
     }
 

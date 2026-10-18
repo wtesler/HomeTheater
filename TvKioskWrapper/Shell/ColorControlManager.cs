@@ -32,8 +32,6 @@ public sealed class ColorControlManager : IDisposable
     private int _disabled;
     private bool _disposed;
 
-    private int _selectedVideoPresetIndex = 0;
-
     public ColorControlManager(ColorControlConfig config, bool isAutomation = false)
     {
         _config = config;
@@ -78,19 +76,24 @@ public sealed class ColorControlManager : IDisposable
         ExecuteCommand(LgPreset + ModePC);
     }
 
+    public IReadOnlyList<string> VideoPresetNames => [.. VideoPresets.Keys];
+
     /// <summary>
-    /// Rotate through the available video presets.
+    /// Applies a specific video preset by index.
     /// </summary>
-    public string RotateVideoPreset()
+    public string SetVideoPreset(int index)
     {
         if (_isAutomation || !_config.Enabled)
         {
             return string.Empty;
         }
 
-        _selectedVideoPresetIndex = (_selectedVideoPresetIndex + 1) % VideoPresets.Count;
-        var (presetName, presetValue) = VideoPresets.GetAt(_selectedVideoPresetIndex);
+        if (index < 0 || index >= VideoPresets.Count)
+        {
+            return string.Empty;
+        }
 
+        var (presetName, presetValue) = VideoPresets.GetAt(index);
         ExecuteCommand(LgPreset + presetValue);
 
         return presetName;
