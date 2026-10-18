@@ -117,6 +117,12 @@ The application reads `config.json` from the application directory on startup (`
   "defaultUrl": "https://launchpad.example/index.html",
   "cursorHideDelaySeconds": 2,
   "debug": false,
+  "colorControl": {
+    "enabled": true,
+    "executablePath": "W:\\Programs\\ColorControl\\ColorControl.exe",
+    "enableArguments": "--nogui --lgpreset HomeTheater",
+    "disableArguments": "--nogui --lgpreset PC"
+  },
   "services": [
     {
       "name": "HBO Max",
@@ -158,6 +164,11 @@ The application reads `config.json` from the application directory on startup (`
 - **`defaultUrl`**: Initial URL loaded when the application starts (`https://launchpad.example/index.html` loads the local Launchpad Home Page).
 - **`cursorHideDelaySeconds`**: Seconds of mouse inactivity before the cursor is hidden (default: `2`).
 - **`debug`**: Enables WebView2 DevTools when set to `true` (can also be enabled via `--debug`).
+- **`colorControl`**: LG TV display preset automation via ColorControl:
+  - **`enabled`**: Enables or disables ColorControl preset switching (default: `true`).
+  - **`executablePath`**: Path to `ColorControl.exe` (default: `W:\Programs\ColorControl\ColorControl.exe`).
+  - **`enableArguments`**: Arguments invoked on kiosk launch and resume-from-sleep (default: `"--nogui --lgpreset HomeTheater"`).
+  - **`disableArguments`**: Arguments invoked when quitting the kiosk (default: `"--nogui --lgpreset PC"`).
 - **`services`**: List of apps rendered on the Launchpad Home Page:
   - **`logo`** *(optional)*: Relative path to the app's logo image within the launcher assets (e.g., `"logos/hbomax.svg"`).
   - **`url`** *(optional)*: Target web application URL for WebView2 services.

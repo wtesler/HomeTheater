@@ -2,6 +2,12 @@
   "defaultUrl": "https://launchpad.example/index.html",
   "cursorHideDelaySeconds": 2,
   "debug": false,
+  "colorControl": {
+    "enabled": true,
+    "executablePath": "W:\\Programs\\ColorControl\\ColorControl.exe",
+    "enableArguments": "--nogui --lgpreset HomeTheater",
+    "disableArguments": "--nogui --lgpreset PC"
+  },
   "services": [
     {
       "name": "HBO Max",

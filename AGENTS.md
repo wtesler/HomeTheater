@@ -24,15 +24,15 @@ dotnet test --nologo -v q --filter Feature=osk
 ## Architecture & Directory Layout
 Code is organized into small, single-purpose files grouped by domain under `TvKioskWrapper/`:
 
-- **`config.json`** — Single source of truth for application settings and the list of streaming service presets (`name`, `url`, `executablePath`, `subtitle`, `logo`, `accentColor`, `navigator`, `spatialNavigation`, `userAgent`).
-- **`MainWindow.xaml` / `MainWindow.xaml.cs`** — Fullscreen borderless window coordinating the shell, input controller, cursor auto-hider, external app manager, and WebView2 manager.
+- **`config.json`** — Single source of truth for application settings, ColorControl display automation (`colorControl`), and the list of streaming service presets (`name`, `url`, `executablePath`, `subtitle`, `logo`, `accentColor`, `navigator`, `spatialNavigation`, `userAgent`).
+- **`MainWindow.xaml` / `MainWindow.xaml.cs`** — Fullscreen borderless window coordinating the shell, input controller, cursor auto-hider, external app manager, ColorControl display manager, and WebView2 manager.
 - **`Assets/Launcher/`** (`index.html`, `launcher.css`, `launcher.js`, `logos/`) — Local Launchpad homepage mapped to `https://launchpad.example/index.html`. Renders the app grid with vector logos dynamically from `config.json`.
-- **`Configuration/`** — Loads `config.json` and command-line overrides (`--url`, `--debug`, `--cursor-timeout`) into `AppConfig` and matches navigated URLs to `StreamingServicePreset` entries.
+- **`Configuration/`** — Loads `config.json` and command-line overrides (`--url`, `--debug`, `--cursor-timeout`, `--no-color-control`) into `AppConfig` and matches navigated URLs to `StreamingServicePreset` entries.
 - **`WebView/`** — Initializes the WebView2 environment (PlayReady/HEVC browser flags, isolated profile in `%LocalAppData%\TvKioskWrapper\Profile`), maps the virtual host for the Launchpad, and applies per-service User-Agent overrides.
 - **`Input/`** — Intercepts remote/keyboard input (`F1`/`Home` for Launchpad, `F12`/`Alt+F4`/`Ctrl+Q` to exit, `Escape`/`Backspace` for back navigation, `MediaPlayPause`, and D-Pad arrow keys) and blocks unwanted browser shortcuts.
 - **`Scripts/` & `Scripts/Navigators/`** — Injects JavaScript into WebView2 for scrollbar hiding, DOM focus management, Smart TV capability spoofing, tailored per-app semantic D-Pad navigators, and a D-Pad on-screen keyboard (`Scripts/Js/on-screen-keyboard.js`, shown when a text field is focused in `hbomax`/`primevideo`; injected *before* the navigator core so it claims arrow/Enter/Escape while open; Back closes it via `__tvKioskTryHandleBack`). Multi-line JS lives in actual `.js` files under `Js/` subfolders and is loaded via `ScriptFileLoader`.
 - **`Automation/`** — Lightweight localhost HTTP server (`--automation`, default `http://127.0.0.1:9333/`) for background semantic DOM inspection (`/semantic-tree`), key simulation (`/key`), live JS evaluation (`/eval`), and downscaled low-res JPEG screenshots (`/screenshot?width=800&quality=55`).
-- **`Shell/`** — Shell interfaces (`IKioskShellActions`), inactivity cursor auto-hiding (`CursorAutoHider`), and native desktop app launching/yielding with global `F1`/`F12` hotkey interception (`ExternalAppManager`).
+- **`Shell/`** — Shell interfaces (`IKioskShellActions`), inactivity cursor auto-hiding (`CursorAutoHider`), LG TV display preset automation (`ColorControlManager`), and native desktop app launching/yielding with global `F1`/`F12` hotkey interception (`ExternalAppManager`).
 - **`Interop/`** — Win32 P/Invoke helpers (`NativeMethods`).
 - **`TvKioskWrapper.Tests/`** — xUnit UI automation test suite (`KioskAutomationFixture`) that boots a single background `TvKioskWrapper.exe --automation` instance and verifies each app navigator (`HboMaxNavigatorTests`, `PrimeVideoNavigatorTests`) and the on-screen keyboard (`OnScreenKeyboardTests`) with compact JSON assertions.
 

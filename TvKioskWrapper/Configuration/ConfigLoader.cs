@@ -66,6 +66,11 @@ public static class ConfigLoader
                 config.AutomationEnabled = true;
                 config.AutomationPort = port;
             }
+            else if (string.Equals(arg, "--no-color-control", StringComparison.OrdinalIgnoreCase) ||
+                     string.Equals(arg, "--skip-color-control", StringComparison.OrdinalIgnoreCase))
+            {
+                config.ColorControl.Enabled = false;
+            }
         }
     }
 }

@@ -24,6 +24,7 @@ public partial class MainWindow : Window, IKioskShellActions
     private readonly CursorAutoHider _cursorAutoHider;
     private readonly InputController _inputController;
     private readonly ExternalAppManager _externalAppManager;
+    private readonly ColorControlManager _colorControlManager;
     private readonly AutomationServer? _automationServer;
 
     private bool _isInitialized;
@@ -46,6 +47,7 @@ public partial class MainWindow : Window, IKioskShellActions
 
         _externalAppManager = new ExternalAppManager(this);
         _externalAppManager.ReturnToLauncherRequested += NavigateToHome;
+        _colorControlManager = new ColorControlManager(_config.ColorControl, isAutomation: _config.AutomationEnabled);
 
         _cursorAutoHider = new CursorAutoHider(
             this,
@@ -78,6 +80,7 @@ public partial class MainWindow : Window, IKioskShellActions
         {
             ActivateNativeWindow();
             _cursorAutoHider.Start();
+            _colorControlManager.EnableHomeTheaterMode();
         }
 
         await _webViewManager.InitializeAsync();
@@ -123,6 +126,8 @@ public partial class MainWindow : Window, IKioskShellActions
 
     private void Window_Closed(object sender, EventArgs e)
     {
+        _colorControlManager.DisableHomeTheaterMode();
+        _colorControlManager.Dispose();
         _externalAppManager.Dispose();
         _automationServer?.Dispose();
         _cursorAutoHider.StopAndRestore();

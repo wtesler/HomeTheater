@@ -23,6 +23,9 @@ public sealed class AppConfig
     [JsonIgnore]
     public int AutomationPort { get; set; } = 9333;
 
+    [JsonPropertyName("colorControl")]
+    public ColorControlConfig ColorControl { get; set; } = new();
+
     [JsonPropertyName("services")]
     public List<StreamingServicePreset> Services { get; set; } = [];
 
