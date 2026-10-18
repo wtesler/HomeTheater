@@ -27,8 +27,8 @@ public static class BrowserShortcutFilter
 
     public static bool IsBlockedBrowserShortcut(Key key, ModifierKeys modifiers)
     {
-        // Block function keys that trigger browser actions (F3 find, F5 reload, F7 caret browsing)
-        if (key is Key.F3 or Key.F5 or Key.F7)
+        // Block function keys that trigger browser actions (F5 reload, F7 caret browsing)
+        if (key is Key.F5 or Key.F7)
         {
             return true;
         }

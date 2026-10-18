@@ -103,6 +103,7 @@ Map your physical remote buttons in the FLIRC application to the following stand
 | **Back** | `BrowserBack`, `Escape`, `Backspace` | Closes open dropdowns/drawers/video players, passes `Escape`/`Backspace` to native TV apps (`youtube.com/tv`), navigates back in history, or returns to the Launchpad if at the top-level page. |
 | **Home / Menu** | `F1` or `Home` | Closes any active external application (e.g., `Plex HTPC`) and returns to the local 10-foot Home Theater Launchpad (`https://launchpad.example/index.html`). |
 | **Audio Output** | `F2` | Rotates in-order through available Windows audio playback endpoints with a 10-foot HUD toast overlay. |
+| **Video Preset** | `F3` | Rotates through LG TV video presets (Standard, Game, Cinema Home) via ColorControl with a 10-foot HUD toast overlay. |
 | **Play / Pause** | `MediaPlayPause` | Toggles play/pause on the active HTML5 `<video>` element. |
 | **Power / Exit** | `F12`, `Alt + F4`, `Ctrl + Q` | Cleanly closes any launched external app, exits the kiosk, and restores the system cursor. |
 | **GPU Diagnostics** | `Ctrl + Shift + G` | Navigates to `edge://gpu` to verify PlayReady SL3000 & HEVC hardware support. |
@@ -120,9 +121,7 @@ The application reads `config.json` from the application directory on startup (`
   "debug": false,
   "colorControl": {
     "enabled": true,
-    "executablePath": "W:\\Programs\\ColorControl\\ColorControl.exe",
-    "enableArguments": "--nogui --lgpreset HomeTheater",
-    "disableArguments": "--nogui --lgpreset PC"
+    "executablePath": "W:\\Programs\\ColorControl\\ColorControl.exe"
   },
   "services": [
     {
@@ -168,8 +167,6 @@ The application reads `config.json` from the application directory on startup (`
 - **`colorControl`**: LG TV display preset automation via ColorControl:
   - **`enabled`**: Enables or disables ColorControl preset switching (default: `true`).
   - **`executablePath`**: Path to `ColorControl.exe` (default: `W:\Programs\ColorControl\ColorControl.exe`).
-  - **`enableArguments`**: Arguments invoked on kiosk launch and resume-from-sleep (default: `"--nogui --lgpreset HomeTheater"`).
-  - **`disableArguments`**: Arguments invoked when quitting the kiosk (default: `"--nogui --lgpreset PC"`).
 - **`services`**: List of apps rendered on the Launchpad Home Page:
   - **`logo`** *(optional)*: Relative path to the app's logo image within the launcher assets (e.g., `"logos/hbomax.svg"`).
   - **`url`** *(optional)*: Target web application URL for WebView2 services.

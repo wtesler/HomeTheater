@@ -4,9 +4,7 @@
   "debug": false,
   "colorControl": {
     "enabled": true,
-    "executablePath": "W:\\Programs\\ColorControl\\ColorControl.exe",
-    "enableArguments": "--nogui --lgpreset HomeTheater",
-    "disableArguments": "--nogui --lgpreset PC"
+    "executablePath": "W:\\Programs\\ColorControl\\ColorControl.exe"
   },
   "services": [
     {

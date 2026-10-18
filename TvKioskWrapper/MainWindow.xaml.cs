@@ -26,7 +26,7 @@ public partial class MainWindow : Window, IKioskShellActions
     private readonly ExternalAppManager _externalAppManager;
     private readonly ColorControlManager _colorControlManager;
     private readonly AudioDeviceManager _audioDeviceManager;
-    private readonly AudioToastWindow _audioToastWindow;
+    private readonly ToastOverlayWindow _toastWindow;
     private readonly AutomationServer? _automationServer;
 
     private bool _isInitialized;
@@ -50,10 +50,11 @@ public partial class MainWindow : Window, IKioskShellActions
         _externalAppManager = new ExternalAppManager(this);
         _externalAppManager.ReturnToLauncherRequested += NavigateToHome;
         _externalAppManager.AudioToggleRequested += ToggleAudioDevice;
+        _externalAppManager.VideoPresetRotateRequested += RotateVideoPreset;
 
         _colorControlManager = new ColorControlManager(_config.ColorControl, isAutomation: _config.AutomationEnabled);
         _audioDeviceManager = new AudioDeviceManager();
-        _audioToastWindow = new AudioToastWindow(this);
+        _toastWindow = new ToastOverlayWindow(this);
 
         _cursorAutoHider = new CursorAutoHider(
             this,
@@ -132,7 +133,7 @@ public partial class MainWindow : Window, IKioskShellActions
 
     private void Window_Closed(object sender, EventArgs e)
     {
-        _audioToastWindow.Close();
+        _toastWindow.Close();
         _colorControlManager.DisableHomeTheaterMode();
         _colorControlManager.Dispose();
         _externalAppManager.Dispose();
@@ -151,7 +152,22 @@ public partial class MainWindow : Window, IKioskShellActions
         AudioDeviceManager.AudioDeviceInfo? next = _audioDeviceManager.ToggleNextPlaybackDevice();
         if (next is not null)
         {
-            _audioToastWindow.ShowToast(next.Name);
+            _toastWindow.ShowAudioToast(next.Name);
+        }
+    }
+
+    public void RotateVideoPreset()
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.BeginInvoke(RotateVideoPreset);
+            return;
+        }
+
+        string presetName = _colorControlManager.RotateVideoPreset();
+        if (!string.IsNullOrWhiteSpace(presetName))
+        {
+            _toastWindow.ShowVideoPresetToast(presetName);
         }
     }
 

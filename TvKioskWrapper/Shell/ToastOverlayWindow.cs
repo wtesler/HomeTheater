@@ -10,18 +10,21 @@ using TvKioskWrapper.Interop;
 namespace TvKioskWrapper.Shell;
 
 /// <summary>
-/// A lightweight, non-activating 10-foot HUD toast window that displays the currently active audio device.
+/// A lightweight, non-activating 10-foot HUD toast window that displays notification overlays
+/// (such as audio device toggles and video preset rotations).
 /// Designed specifically for TV viewing distances without stealing keyboard focus from WebView2.
 /// </summary>
-public sealed class AudioToastWindow : Window
+public sealed class ToastOverlayWindow : Window
 {
     private readonly Window _ownerWindow;
-    private readonly TextBlock _deviceNameText;
+    private readonly TextBlock _iconText;
+    private readonly TextBlock _subtitleText;
+    private readonly TextBlock _messageText;
     private readonly DispatcherTimer _hideTimer;
     private readonly Storyboard _fadeInStoryboard;
     private readonly Storyboard _fadeOutStoryboard;
 
-    public AudioToastWindow(Window ownerWindow)
+    public ToastOverlayWindow(Window ownerWindow)
     {
         _ownerWindow = ownerWindow;
 
@@ -35,7 +38,7 @@ public sealed class AudioToastWindow : Window
         SizeToContent = SizeToContent.WidthAndHeight;
         Opacity = 0;
 
-        _deviceNameText = new TextBlock
+        _messageText = new TextBlock
         {
             Foreground = Brushes.White,
             FontSize = 18,
@@ -44,9 +47,8 @@ public sealed class AudioToastWindow : Window
             TextTrimming = TextTrimming.CharacterEllipsis
         };
 
-        var subtitleText = new TextBlock
+        _subtitleText = new TextBlock
         {
-            Text = "AUDIO OUTPUT",
             Foreground = new SolidColorBrush(Color.FromRgb(160, 160, 160)),
             FontSize = 11,
             FontWeight = FontWeights.Bold,
@@ -57,12 +59,11 @@ public sealed class AudioToastWindow : Window
         {
             Orientation = Orientation.Vertical,
             VerticalAlignment = VerticalAlignment.Center,
-            Children = { subtitleText, _deviceNameText }
+            Children = { _subtitleText, _messageText }
         };
 
-        var iconText = new TextBlock
+        _iconText = new TextBlock
         {
-            Text = "🔊",
             FontSize = 18,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center
@@ -75,7 +76,7 @@ public sealed class AudioToastWindow : Window
             CornerRadius = new CornerRadius(20),
             Background = new SolidColorBrush(Color.FromArgb(32, 255, 255, 255)),
             Margin = new Thickness(0, 0, 16, 0),
-            Child = iconText
+            Child = _iconText
         };
 
         var contentGrid = new StackPanel
@@ -148,11 +149,13 @@ public sealed class AudioToastWindow : Window
     }
 
     /// <summary>
-    /// Displays or updates the audio toast with the newly selected device name.
+    /// Displays or updates the toast notification with a specific message, subtitle, and icon.
     /// </summary>
-    public void ShowToast(string deviceName)
+    public void ShowToast(string message, string subtitle, string icon)
     {
-        _deviceNameText.Text = deviceName;
+        _messageText.Text = message;
+        _subtitleText.Text = subtitle;
+        _iconText.Text = icon;
         UpdateLayout();
 
         double ownerLeft = _ownerWindow.WindowState == WindowState.Maximized ? 0 : _ownerWindow.Left;
@@ -178,6 +181,16 @@ public sealed class AudioToastWindow : Window
 
         _hideTimer.Start();
     }
+
+    /// <summary>
+    /// Convenience method to display an audio output change toast.
+    /// </summary>
+    public void ShowAudioToast(string deviceName) => ShowToast(deviceName, "AUDIO OUTPUT", "🔊");
+
+    /// <summary>
+    /// Convenience method to display a video preset change toast.
+    /// </summary>
+    public void ShowVideoPresetToast(string presetName) => ShowToast(presetName, "VIDEO PRESET", "📺");
 
     private void OnHideTimerTick(object? sender, EventArgs e)
     {

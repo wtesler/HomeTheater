@@ -12,11 +12,5 @@ public sealed class ColorControlConfig
 
     [JsonPropertyName("executablePath")]
     public string ExecutablePath { get; set; } = @"W:\Programs\ColorControl\ColorControl.exe";
-
-    [JsonPropertyName("enableArguments")]
-    public string EnableArguments { get; set; } = "--nogui --lgpreset HomeTheater";
-
-    [JsonPropertyName("disableArguments")]
-    public string DisableArguments { get; set; } = "--nogui --lgpreset PC";
 }
 

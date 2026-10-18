@@ -14,4 +14,5 @@ public interface IKioskShellActions
     void NavigateToUrl(string url, StreamingServicePreset? preset = null);
     void HideCursorImmediately();
     void ToggleAudioDevice();
+    void RotateVideoPreset();
 }

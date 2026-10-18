@@ -12,10 +12,27 @@ namespace TvKioskWrapper.Shell;
 /// </summary>
 public sealed class ColorControlManager : IDisposable
 {
+    private const string LgPreset = "--nogui --lgpreset ";
+
+    private const string ModeHomeTheater = "Mode_HomeTheater";
+    private const string ModePC = "Mode_PC";
+
+    private const string VideoStandard = "Video_Standard";
+    // private const string VideoGame = "Video_Game";
+    private const string VideoCinemaHome = "Video_CinemaHome";
+
+    private readonly OrderedDictionary<string, string> VideoPresets = new()
+    {
+        { "Standard", VideoStandard },
+        { "Cinema Home", VideoCinemaHome }
+    };
+
     private readonly ColorControlConfig _config;
     private readonly bool _isAutomation;
     private int _disabled;
     private bool _disposed;
+
+    private int _selectedVideoPresetIndex = 0;
 
     public ColorControlManager(ColorControlConfig config, bool isAutomation = false)
     {
@@ -40,7 +57,7 @@ public sealed class ColorControlManager : IDisposable
         }
 
         Interlocked.Exchange(ref _disabled, 0);
-        Task.Run(() => ExecuteCommand(_config.EnableArguments));
+        Task.Run(() => ExecuteCommand(LgPreset + ModeHomeTheater));
     }
 
     /// <summary>
@@ -58,7 +75,25 @@ public sealed class ColorControlManager : IDisposable
             return;
         }
 
-        ExecuteCommand(_config.DisableArguments);
+        ExecuteCommand(LgPreset + ModePC);
+    }
+
+    /// <summary>
+    /// Rotate through the available video presets.
+    /// </summary>
+    public string RotateVideoPreset()
+    {
+        if (_isAutomation || !_config.Enabled)
+        {
+            return string.Empty;
+        }
+
+        _selectedVideoPresetIndex = (_selectedVideoPresetIndex + 1) % VideoPresets.Count;
+        var (presetName, presetValue) = VideoPresets.GetAt(_selectedVideoPresetIndex);
+
+        ExecuteCommand(LgPreset + presetValue);
+
+        return presetName;
     }
 
     private void ExecuteCommand(string arguments)

@@ -64,6 +64,13 @@ public sealed class InputController
             return;
         }
 
+        if (key == Key.F3)
+        {
+            handled = true;
+            _shell.RotateVideoPreset();
+            return;
+        }
+
         if (BrowserShortcutFilter.IsGpuDiagnosticsShortcut(key, modifiers))
         {
             handled = true;
@@ -125,6 +132,14 @@ public sealed class InputController
         {
             e.Handled = true;
             _shell.ToggleAudioDevice();
+            return;
+        }
+
+        // 7. Video preset toggle (F3) -> In-order rotation with toast HUD
+        if (key == Key.F3)
+        {
+            e.Handled = true;
+            _shell.RotateVideoPreset();
             return;
         }
 
