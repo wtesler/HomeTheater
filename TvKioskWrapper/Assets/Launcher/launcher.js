@@ -215,6 +215,10 @@
         if (gpuHint) {
             gpuHint.style.display = debugEnabled ? "" : "none";
         }
+        const exitHint = document.getElementById("exitHint");
+        if (exitHint) {
+            exitHint.style.display = debugEnabled ? "" : "none";
+        }
     }
 
     window.__setKioskDebug = function (debugEnabled) {

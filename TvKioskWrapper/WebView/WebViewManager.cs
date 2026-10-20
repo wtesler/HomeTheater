@@ -35,6 +35,7 @@ public sealed class WebViewManager
     public bool IsOnHomePage => LauncherHostManager.IsLauncherUrl(_webView.Source?.ToString());
 
     public event EventHandler<CoreWebView2NavigationCompletedEventArgs>? NavigationCompleted;
+    public event Action<string>? ServiceLaunchRequested;
     public event Action<string>? ExternalAppLaunchRequested;
     public event Action? HomeRequested;
 
@@ -44,7 +45,11 @@ public sealed class WebViewManager
         _scriptInjector = scriptInjector;
         _config = config;
         _launcherHostManager = new LauncherHostManager(config);
-        _launcherHostManager.ServiceLaunchRequested += url => Navigate(url);
+        _launcherHostManager.ServiceLaunchRequested += url =>
+        {
+            Navigate(url);
+            ServiceLaunchRequested?.Invoke(url);
+        };
         _launcherHostManager.ExternalAppLaunchRequested += exePath => ExternalAppLaunchRequested?.Invoke(exePath);
         _launcherHostManager.HomeRequested += () => HomeRequested?.Invoke();
     }

@@ -45,6 +45,7 @@ public partial class MainWindow : Window, IKioskShellActions
         _webViewManager = new WebViewManager(KioskWebView, _scriptInjector, _config);
         _webViewManager.NavigationCompleted += OnWebViewNavigationCompleted;
         _webViewManager.ExternalAppLaunchRequested += LaunchExternalApp;
+        _webViewManager.ServiceLaunchRequested += OnServiceLaunchRequested;
         _webViewManager.HomeRequested += NavigateToHome;
 
         _externalAppManager = new ExternalAppManager(this);
@@ -266,8 +267,11 @@ public partial class MainWindow : Window, IKioskShellActions
 
     public bool EnsureBrowserFocus() => _isInitialized && _webViewManager.EnsureBrowserFocus();
 
+    private void OnServiceLaunchRequested(string url) => EnableHomeTheaterMode();
+
     public void LaunchExternalApp(string executablePath)
     {
+        EnableHomeTheaterMode();
         // Yield Topmost status so the external app (e.g. Plex HTPC) appears in front of TvKioskWrapper.
         Topmost = false;
         if (!_externalAppManager.Launch(executablePath))
