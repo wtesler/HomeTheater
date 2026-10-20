@@ -18,13 +18,23 @@ public sealed class ColorControlManager : IDisposable
     private const string ModePC = "Mode_PC";
 
     private const string VideoStandard = "Video_Standard";
-    // private const string VideoGame = "Video_Game";
     private const string VideoCinemaHome = "Video_CinemaHome";
+
+    private const string MotionOff = "Motion_Off";
+    private const string MotionCinematic = "Motion_Cinematic";
+    private const string MotionNatural = "Motion_Natural";
 
     private readonly OrderedDictionary<string, string> VideoPresets = new()
     {
         { "Standard", VideoStandard },
         { "Cinema Home", VideoCinemaHome }
+    };
+
+    private readonly OrderedDictionary<string, string> MotionPresets = new()
+    {
+        { "Off", MotionOff },
+        { "Cinematic", MotionCinematic },
+        { "Natural", MotionNatural }
     };
 
     private readonly ColorControlConfig _config;
@@ -94,6 +104,29 @@ public sealed class ColorControlManager : IDisposable
         }
 
         var (presetName, presetValue) = VideoPresets.GetAt(index);
+        ExecuteCommand(LgPreset + presetValue);
+
+        return presetName;
+    }
+
+    public IReadOnlyList<string> MotionPresetNames => [.. MotionPresets.Keys];
+
+    /// <summary>
+    /// Applies a specific motion preset by index.
+    /// </summary>
+    public string SetMotionPreset(int index)
+    {
+        if (_isAutomation || !_config.Enabled)
+        {
+            return string.Empty;
+        }
+
+        if (index < 0 || index >= MotionPresets.Count)
+        {
+            return string.Empty;
+        }
+
+        var (presetName, presetValue) = MotionPresets.GetAt(index);
         ExecuteCommand(LgPreset + presetValue);
 
         return presetName;

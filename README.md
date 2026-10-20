@@ -12,7 +12,7 @@ A lightweight, borderless Windows 10/11 desktop wrapper around the Microsoft Edg
 - **4K UHD & HDR PlayReady SL3000 Support:** Passes hardware DRM and GPU decode flags (`PlayReadyDrmWin10`, `PlatformHEVCDecoderSupport`, `HardwareMediaKeyHandling`, zero-copy GPU rasterization) while disabling software Widevine fallback (`--disable-features=WidevineDrm`).
 - **Tailored Semantic D-Pad Navigators:** Injects a shared semantic navigation core (`semantic-navigator-core.js`) paired with per-app adapters (`hbomax-navigator.js`, `primevideo-navigator.js`) that understand each streaming site's DOM landmarks (Top Nav, Hero Carousels, Content Rails, Detail Actions, Season Selectors, Episode Grids, and Search) with a high-contrast 10-foot focus ring (`#__tv_kiosk_focus_ring__`).
 - **D-Pad On-Screen Keyboard:** Automatically pops up a 10-foot on-screen keyboard (`on-screen-keyboard.js`) whenever a search bar or text input is focused in web apps (HBO Max, Prime Video). Supports full D-Pad navigation, number/letter rows, symbols (`?123`), shift, space, backspace, clear, `Go ↵` form submission, and closes cleanly via remote `Back` / `Escape`.
-- **10-Foot Settings Popup Menu (`F2`):** Displays a sleek top-left popup menu with drilldown context menus to configure **Video** picture presets (Standard and Cinema Home), **Audio** output devices (enumerating active Windows playback endpoints with live default detection), and **System** actions (Force Home Theater mode) using remote D-Pad controls or mouse clicks. Operates seamlessly both in the kiosk and on top of external desktop applications (such as Plex HTPC).
+- **10-Foot Settings Popup Menu (`F2`):** Displays a sleek top-left popup menu with drilldown context menus to configure **Video** picture presets (Standard and Cinema Home), **Audio** output devices (enumerating active Windows playback endpoints with live default detection), **Clarity** motion presets (Off, Cinematic, Natural), and **System** actions (Force Home Theater mode) using remote D-Pad controls or mouse clicks. Operates seamlessly both in the kiosk and on top of external desktop applications (such as Plex HTPC).
 - **Native YouTube TV Mode (`youtube.com/tv`):** Dynamically spoofs a Smart TV `User-Agent`, strips Windows Chromium Client-Hint headers (`Sec-CH-UA*`), and masks `navigator.userAgentData` on YouTube TV so `https://www.youtube.com/tv` loads the genuine 10-foot Smart TV leanback UI instead of redirecting to desktop YouTube.
 - **Native Desktop App Launching (`executablePath`):** Supports launching native 10-foot desktop applications such as **Plex HTPC** in front of the kiosk while intercepting global `F1` / `F12` hotkeys (`RegisterHotKey`) so pressing `F1` closes the external app and returns seamlessly to the Launchpad.
 - **10-Foot Local Launchpad Home Page (`https://launchpad.example/index.html`):** Boots into a local Smart TV launchpad webpage displaying all configured streaming services in a D-Pad navigable grid with ambient lighting and a live clock. Pressing `F1` or `Home` at any time returns to this home page.
@@ -94,9 +94,9 @@ dotnet test --nologo -v q --filter Navigator=primevideo
    - Tests D-Pad key selection and character input via `Enter` (including character concatenation).
    - Verifies `Escape` (or remote `Back`) dismisses the keyboard while preserving typed text.
 3. **Settings Menu (`SettingsMenuTests`):**
-   - Verifies D-Pad navigation across the top-level categories ("Video", "Audio", "System").
+   - Verifies D-Pad navigation across the top-level categories ("Video", "Audio", "Clarity", "System").
    - Confirms drilldown context menus open on `Enter` or `Right` arrow.
-   - Tests video preset selection ("Standard", "Cinema Home") and dynamic audio device selection with active default detection.
+   - Tests video preset selection ("Standard", "Cinema Home"), motion clarity preset selection ("Off", "Cinematic", "Natural"), and dynamic audio device selection with active default detection.
    - Tests "Force Home Theater" system action execution.
    - Verifies submenu back-navigation (`Left` arrow, `Back`, `Escape`) and `F2` toggle dismiss.
 
@@ -112,7 +112,7 @@ Map your physical remote buttons in the FLIRC application to the following stand
 | **OK / Select** | `Enter` | Launches the selected app tile on the Home Page, activates the focused button/tile/dropdown, opens drilldown or confirms selection in the Settings Menu, or focuses/submits search inputs. |
 | **Back** | `BrowserBack`, `Escape`, `Backspace` | Closes open dropdowns/drawers/video players, navigates back from drilldown submenus in the Settings Menu, passes `Escape`/`Backspace` to native TV apps (`youtube.com/tv`), navigates back in history, or returns to the Launchpad if at the top-level page. |
 | **Home / Menu** | `F1` or `Home` | Closes any active external application (e.g., `Plex HTPC`) and returns to the local 10-foot Home Theater Launchpad (`https://launchpad.example/index.html`). |
-| **Settings Menu** | `F2` | Opens the 10-foot Settings popup menu in the top-left to configure Video presets (Standard, Cinema Home), Audio playback devices, and System actions (Force Home Theater). Pressing `F2` again closes the menu. |
+| **Settings Menu** | `F2` | Opens the 10-foot Settings popup menu in the top-left to configure Video presets (Standard, Cinema Home), Audio playback devices, Clarity motion presets (Off, Cinematic, Natural), and System actions (Force Home Theater). Pressing `F2` again closes the menu. |
 | **Play / Pause** | `MediaPlayPause` | Toggles play/pause on the active HTML5 `<video>` element. |
 | **Power / Exit** | `F12`, `Alt + F4`, `Ctrl + Q` | Cleanly closes any launched external app, exits the kiosk, and restores the system cursor. |
 | **GPU Diagnostics** | `Ctrl + Shift + G` | Navigates to `edge://gpu` to verify PlayReady SL3000 & HEVC hardware support. |

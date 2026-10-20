@@ -61,9 +61,11 @@ public partial class MainWindow : Window, IKioskShellActions
             this,
             () => _colorControlManager.VideoPresetNames,
             () => _audioDeviceManager.GetActivePlaybackDevices(),
-            () => _audioDeviceManager.GetDefaultPlaybackDeviceId());
+            () => _audioDeviceManager.GetDefaultPlaybackDeviceId(),
+            () => _colorControlManager.MotionPresetNames);
         _settingsMenuWindow.VideoPresetSelected += OnVideoPresetSelected;
         _settingsMenuWindow.AudioDeviceSelected += OnAudioDeviceSelected;
+        _settingsMenuWindow.MotionPresetSelected += OnMotionPresetSelected;
         _settingsMenuWindow.ForceHomeTheaterSelected += OnForceHomeTheaterSelected;
         _settingsMenuWindow.MenuClosed += OnSettingsMenuClosed;
 
@@ -224,6 +226,13 @@ public partial class MainWindow : Window, IKioskShellActions
     {
         _audioDeviceManager.SetDefaultPlaybackDevice(device.Id);
         _toastWindow.ShowAudioToast(device.Name);
+        RestoreFocusAfterModal();
+    }
+
+    private void OnMotionPresetSelected(int selectedIndex, string presetName)
+    {
+        _colorControlManager.SetMotionPreset(selectedIndex);
+        _toastWindow.ShowMotionPresetToast(presetName);
         RestoreFocusAfterModal();
     }
 

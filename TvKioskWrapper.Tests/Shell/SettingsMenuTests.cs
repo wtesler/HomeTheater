@@ -40,7 +40,8 @@ public sealed class SettingsMenuTests
                 owner,
                 () => new[] { "Standard", "Cinema Home" },
                 () => Array.Empty<AudioDeviceManager.AudioDeviceInfo>(),
-                () => null);
+                () => null,
+                () => new[] { "Off", "Cinematic", "Natural" });
 
             menu.VideoPresetSelected += (idx, name) =>
             {
@@ -84,7 +85,8 @@ public sealed class SettingsMenuTests
                 owner,
                 () => new[] { "Standard", "Cinema Home" },
                 () => dummyDevices,
-                () => "id1");
+                () => "id1",
+                () => new[] { "Off", "Cinematic", "Natural" });
 
             menu.AudioDeviceSelected += dev => selectedDevice = dev;
 
@@ -108,6 +110,49 @@ public sealed class SettingsMenuTests
     }
 
     [Fact]
+    public async Task SettingsMenu_MotionPresetSelection_TriggersEvent()
+    {
+        await RunInStaAsync(() =>
+        {
+            var owner = new Window();
+            int selectedIndex = -1;
+            string selectedName = string.Empty;
+
+            var menu = new SettingsMenuModalWindow(
+                owner,
+                () => new[] { "Standard", "Cinema Home" },
+                () => Array.Empty<AudioDeviceManager.AudioDeviceInfo>(),
+                () => null,
+                () => new[] { "Off", "Cinematic", "Natural" });
+
+            menu.MotionPresetSelected += (idx, name) =>
+            {
+                selectedIndex = idx;
+                selectedName = name;
+            };
+
+            menu.ShowMenu();
+
+            // Navigate Down twice to "Clarity" (index 2)
+            menu.HandleKey(Key.Down);
+            menu.HandleKey(Key.Down);
+
+            // Press Enter to drilldown into Clarity
+            menu.HandleKey(Key.Enter);
+
+            // In Clarity submenu, move down to "Cinematic" (index 1)
+            menu.HandleKey(Key.Down);
+
+            // Press Enter to confirm selection
+            menu.HandleKey(Key.Enter);
+
+            Assert.Equal(1, selectedIndex);
+            Assert.Equal("Cinematic", selectedName);
+            Assert.False(menu.IsMenuOpen);
+        });
+    }
+
+    [Fact]
     public async Task SettingsMenu_ForceHomeTheaterSelection_TriggersEvent()
     {
         await RunInStaAsync(() =>
@@ -119,13 +164,15 @@ public sealed class SettingsMenuTests
                 owner,
                 () => new[] { "Standard", "Cinema Home" },
                 () => Array.Empty<AudioDeviceManager.AudioDeviceInfo>(),
-                () => null);
+                () => null,
+                () => new[] { "Off", "Cinematic", "Natural" });
 
             menu.ForceHomeTheaterSelected += () => forceHomeTheaterFired = true;
 
             menu.ShowMenu();
 
-            // Navigate Down twice to "System" (index 2)
+            // Navigate Down 3 times to "System" (index 3)
+            menu.HandleKey(Key.Down);
             menu.HandleKey(Key.Down);
             menu.HandleKey(Key.Down);
 
@@ -150,7 +197,8 @@ public sealed class SettingsMenuTests
                 owner,
                 () => new[] { "Standard", "Cinema Home" },
                 () => Array.Empty<AudioDeviceManager.AudioDeviceInfo>(),
-                () => null);
+                () => null,
+                () => new[] { "Off", "Cinematic", "Natural" });
 
             menu.ShowMenu();
 
@@ -177,7 +225,8 @@ public sealed class SettingsMenuTests
                 owner,
                 () => new[] { "Standard", "Cinema Home" },
                 () => Array.Empty<AudioDeviceManager.AudioDeviceInfo>(),
-                () => null);
+                () => null,
+                () => new[] { "Off", "Cinematic", "Natural" });
 
             menu.ShowMenu();
             Assert.True(menu.IsMenuOpen);
@@ -189,4 +238,3 @@ public sealed class SettingsMenuTests
         });
     }
 }
-
