@@ -24,6 +24,11 @@ public sealed class ColorControlManager : IDisposable
     private const string MotionCinematic = "Motion_Cinematic";
     private const string MotionNatural = "Motion_Natural";
 
+    private const string SoundStandard = "Sound_Standard";
+    private const string SoundVoice = "Sound_Voice";
+    private const string SoundCinema = "Sound_Cinema";
+    private const string SoundAI = "Sound_AI";
+
     private readonly OrderedDictionary<string, string> VideoPresets = new()
     {
         { "Standard", VideoStandard },
@@ -35,6 +40,14 @@ public sealed class ColorControlManager : IDisposable
         { "Off", MotionOff },
         { "Cinematic", MotionCinematic },
         { "Natural", MotionNatural }
+    };
+
+    private readonly OrderedDictionary<string, string> SoundPresets = new()
+    {
+        { "Standard", SoundStandard },
+        { "Voice", SoundVoice },
+        { "Cinema", SoundCinema },
+        { "AI", SoundAI }
     };
 
     private readonly ColorControlConfig _config;
