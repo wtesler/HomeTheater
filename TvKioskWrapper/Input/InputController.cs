@@ -44,9 +44,9 @@ public sealed class InputController
 
         if (BrowserShortcutFilter.IsExitShortcut(key, modifiers))
         {
-            if (_shell.IsVideoPresetModalOpen)
+            if (_shell.IsSettingsMenuOpen)
             {
-                _shell.CloseVideoPresetModal();
+                _shell.CloseSettingsMenu();
             }
             handled = true;
             Application.Current?.Dispatcher.BeginInvoke(() => Application.Current.Shutdown());
@@ -55,9 +55,9 @@ public sealed class InputController
 
         if (key is Key.F1 or Key.Home)
         {
-            if (_shell.IsVideoPresetModalOpen)
+            if (_shell.IsSettingsMenuOpen)
             {
-                _shell.CloseVideoPresetModal();
+                _shell.CloseSettingsMenu();
             }
             handled = true;
             _shell.HideCursorImmediately();
@@ -65,44 +65,22 @@ public sealed class InputController
             return;
         }
 
-        if (key == Key.F2)
+        // If the settings menu is open, intercept navigation & confirmation keys
+        if (_shell.IsSettingsMenuOpen)
         {
-            if (_shell.IsVideoPresetModalOpen)
-            {
-                _shell.CloseVideoPresetModal();
-            }
-            handled = true;
-            _shell.ToggleAudioDevice();
-            return;
-        }
-
-        if (key == Key.F3)
-        {
-            handled = true;
-            _shell.ToggleVideoPresetModal();
-            return;
-        }
-
-        if (key == Key.F4 && !modifiers.HasFlag(ModifierKeys.Alt))
-        {
-            if (_shell.IsVideoPresetModalOpen)
-            {
-                _shell.CloseVideoPresetModal();
-            }
-            handled = true;
-            _shell.EnableHomeTheaterMode();
-            return;
-        }
-
-        // If the video preset modal is open, intercept navigation & confirmation keys
-        if (_shell.IsVideoPresetModalOpen)
-        {
-            if (key is Key.Up or Key.Down or Key.Left or Key.Right or Key.Enter or Key.Escape or Key.Back or Key.BrowserBack)
+            if (key is Key.Up or Key.Down or Key.Left or Key.Right or Key.Enter or Key.Escape or Key.Back or Key.BrowserBack or Key.F2)
             {
                 handled = true;
-                _shell.HandleVideoPresetModalKey(key);
+                _shell.HandleSettingsMenuKey(key);
                 return;
             }
+        }
+
+        if (key == Key.F2)
+        {
+            handled = true;
+            _shell.ToggleSettingsMenu();
+            return;
         }
 
         if (BrowserShortcutFilter.IsGpuDiagnosticsShortcut(key, modifiers))
@@ -126,22 +104,22 @@ public sealed class InputController
         // 1. Power / Exit safeguards: F12, Alt+F4, or Ctrl+Q
         if (BrowserShortcutFilter.IsExitShortcut(key, modifiers))
         {
-            if (_shell.IsVideoPresetModalOpen)
+            if (_shell.IsSettingsMenuOpen)
             {
-                _shell.CloseVideoPresetModal();
+                _shell.CloseSettingsMenu();
             }
             e.Handled = true;
             Application.Current?.Dispatcher.BeginInvoke(() => Application.Current.Shutdown());
             return;
         }
 
-        // If the video preset modal is open, intercept navigation & confirmation keys
-        if (_shell.IsVideoPresetModalOpen)
+        // If the settings menu is open, intercept navigation & confirmation keys
+        if (_shell.IsSettingsMenuOpen)
         {
-            if (key is Key.Up or Key.Down or Key.Left or Key.Right or Key.Enter or Key.Escape or Key.Back or Key.BrowserBack or Key.F3)
+            if (key is Key.Up or Key.Down or Key.Left or Key.Right or Key.Enter or Key.Escape or Key.Back or Key.BrowserBack or Key.F2)
             {
                 e.Handled = true;
-                _shell.HandleVideoPresetModalKey(key);
+                _shell.HandleSettingsMenuKey(key);
                 return;
             }
         }
@@ -176,27 +154,11 @@ public sealed class InputController
             return;
         }
 
-        // 6. Audio output toggle (F2) -> In-order rotation with toast HUD
+        // 6. Settings popup menu (F2) -> D-Pad interactive drilldown menu
         if (key == Key.F2)
         {
             e.Handled = true;
-            _shell.ToggleAudioDevice();
-            return;
-        }
-
-        // 7. Video preset modal popup (F3) -> D-Pad interactive selection
-        if (key == Key.F3)
-        {
-            e.Handled = true;
-            _shell.ToggleVideoPresetModal();
-            return;
-        }
-
-        // 8. Enable Home Theater mode (F4)
-        if (key == Key.F4 && !modifiers.HasFlag(ModifierKeys.Alt))
-        {
-            e.Handled = true;
-            _shell.EnableHomeTheaterMode();
+            _shell.ToggleSettingsMenu();
             return;
         }
 

@@ -192,6 +192,11 @@ public sealed class ToastOverlayWindow : Window
     /// </summary>
     public void ShowVideoPresetToast(string presetName) => ShowToast(presetName, "VIDEO PRESET", "📺");
 
+    /// <summary>
+    /// Convenience method to display a system preset / home theater change toast.
+    /// </summary>
+    public void ShowSystemToast(string message) => ShowToast(message, "SYSTEM", "🎬");
+
     private void OnHideTimerTick(object? sender, EventArgs e)
     {
         _hideTimer.Stop();

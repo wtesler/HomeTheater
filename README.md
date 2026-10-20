@@ -12,6 +12,7 @@ A lightweight, borderless Windows 10/11 desktop wrapper around the Microsoft Edg
 - **4K UHD & HDR PlayReady SL3000 Support:** Passes hardware DRM and GPU decode flags (`PlayReadyDrmWin10`, `PlatformHEVCDecoderSupport`, `HardwareMediaKeyHandling`, zero-copy GPU rasterization) while disabling software Widevine fallback (`--disable-features=WidevineDrm`).
 - **Tailored Semantic D-Pad Navigators:** Injects a shared semantic navigation core (`semantic-navigator-core.js`) paired with per-app adapters (`hbomax-navigator.js`, `primevideo-navigator.js`) that understand each streaming site's DOM landmarks (Top Nav, Hero Carousels, Content Rails, Detail Actions, Season Selectors, Episode Grids, and Search) with a high-contrast 10-foot focus ring (`#__tv_kiosk_focus_ring__`).
 - **D-Pad On-Screen Keyboard:** Automatically pops up a 10-foot on-screen keyboard (`on-screen-keyboard.js`) whenever a search bar or text input is focused in web apps (HBO Max, Prime Video). Supports full D-Pad navigation, number/letter rows, symbols (`?123`), shift, space, backspace, clear, `Go ↵` form submission, and closes cleanly via remote `Back` / `Escape`.
+- **10-Foot Settings Popup Menu (`F2`):** Displays a sleek top-left popup menu with drilldown context menus to configure **Video** picture presets (Standard and Cinema Home), **Audio** output devices (enumerating active Windows playback endpoints with live default detection), and **System** actions (Force Home Theater mode) using remote D-Pad controls or mouse clicks. Operates seamlessly both in the kiosk and on top of external desktop applications (such as Plex HTPC).
 - **Native YouTube TV Mode (`youtube.com/tv`):** Dynamically spoofs a Smart TV `User-Agent`, strips Windows Chromium Client-Hint headers (`Sec-CH-UA*`), and masks `navigator.userAgentData` on YouTube TV so `https://www.youtube.com/tv` loads the genuine 10-foot Smart TV leanback UI instead of redirecting to desktop YouTube.
 - **Native Desktop App Launching (`executablePath`):** Supports launching native 10-foot desktop applications such as **Plex HTPC** in front of the kiosk while intercepting global `F1` / `F12` hotkeys (`RegisterHotKey`) so pressing `F1` closes the external app and returns seamlessly to the Launchpad.
 - **10-Foot Local Launchpad Home Page (`https://launchpad.example/index.html`):** Boots into a local Smart TV launchpad webpage displaying all configured streaming services in a D-Pad navigable grid with ambient lighting and a live clock. Pressing `F1` or `Home` at any time returns to this home page.
@@ -65,8 +66,11 @@ The solution includes an xUnit UI Automation test project (`TvKioskWrapper.Tests
 Use `--nologo -v q` for quiet, token-efficient output (prints a single summary line when passing):
 
 ```powershell
-# Run all app navigator UI automation tests at once
+# Run all tests at once (app navigators, on-screen keyboard, and settings menu)
 dotnet test --nologo -v q
+
+# Run only the settings popup menu tests
+dotnet test --nologo -v q --filter SettingsMenuTests
 
 # Run a single app navigator test by class name
 dotnet test --nologo -v q --filter HboMax
@@ -89,6 +93,12 @@ dotnet test --nologo -v q --filter Navigator=primevideo
    - Focuses search inputs on Prime Video and HBO Max, verifying the on-screen keyboard mounts and becomes visible.
    - Tests D-Pad key selection and character input via `Enter` (including character concatenation).
    - Verifies `Escape` (or remote `Back`) dismisses the keyboard while preserving typed text.
+3. **Settings Menu (`SettingsMenuTests`):**
+   - Verifies D-Pad navigation across the top-level categories ("Video", "Audio", "System").
+   - Confirms drilldown context menus open on `Enter` or `Right` arrow.
+   - Tests video preset selection ("Standard", "Cinema Home") and dynamic audio device selection with active default detection.
+   - Tests "Force Home Theater" system action execution.
+   - Verifies submenu back-navigation (`Left` arrow, `Back`, `Escape`) and `F2` toggle dismiss.
 
 ---
 
@@ -98,13 +108,11 @@ Map your physical remote buttons in the FLIRC application to the following stand
 
 | Remote Button | Keyboard Key(s) | Behavior |
 | :--- | :--- | :--- |
-| **D-Pad Up / Down / Left / Right** | `Up`, `Down`, `Left`, `Right` | Hides cursor immediately. Navigates app tiles on the Home Page, native TV UIs (`youtube.com/tv`), or the injected semantic/spatial navigation engine. |
-| **OK / Select** | `Enter` | Launches the selected app tile on the Home Page, activates the focused button/tile/dropdown, or focuses/submits search inputs. |
-| **Back** | `BrowserBack`, `Escape`, `Backspace` | Closes open dropdowns/drawers/video players, passes `Escape`/`Backspace` to native TV apps (`youtube.com/tv`), navigates back in history, or returns to the Launchpad if at the top-level page. |
+| **D-Pad Up / Down / Left / Right** | `Up`, `Down`, `Left`, `Right` | Hides cursor immediately. Navigates app tiles on the Home Page, native TV UIs (`youtube.com/tv`), injected semantic/spatial navigators, and Settings Menu categories/submenus (`Right`/`Enter` enters submenu, `Left`/`Back` returns). |
+| **OK / Select** | `Enter` | Launches the selected app tile on the Home Page, activates the focused button/tile/dropdown, opens drilldown or confirms selection in the Settings Menu, or focuses/submits search inputs. |
+| **Back** | `BrowserBack`, `Escape`, `Backspace` | Closes open dropdowns/drawers/video players, navigates back from drilldown submenus in the Settings Menu, passes `Escape`/`Backspace` to native TV apps (`youtube.com/tv`), navigates back in history, or returns to the Launchpad if at the top-level page. |
 | **Home / Menu** | `F1` or `Home` | Closes any active external application (e.g., `Plex HTPC`) and returns to the local 10-foot Home Theater Launchpad (`https://launchpad.example/index.html`). |
-| **Audio Output** | `F2` | Rotates in-order through available Windows audio playback endpoints with a 10-foot HUD toast overlay. |
-| **Video Preset** | `F3` | Opens a 10-foot modal popup to navigate and select LG TV video presets (Standard, Cinema Home) using D-Pad and Enter. |
-| **Home Theater Mode** | `F4` | Re-applies the LG TV Home Theater display preset via ColorControl. |
+| **Settings Menu** | `F2` | Opens the 10-foot Settings popup menu in the top-left to configure Video presets (Standard, Cinema Home), Audio playback devices, and System actions (Force Home Theater). Pressing `F2` again closes the menu. |
 | **Play / Pause** | `MediaPlayPause` | Toggles play/pause on the active HTML5 `<video>` element. |
 | **Power / Exit** | `F12`, `Alt + F4`, `Ctrl + Q` | Cleanly closes any launched external app, exits the kiosk, and restores the system cursor. |
 | **GPU Diagnostics** | `Ctrl + Shift + G` | Navigates to `edge://gpu` to verify PlayReady SL3000 & HEVC hardware support. |
@@ -194,13 +202,14 @@ w:\CSharpProjects\HomeTheater\
 │   ├── Scripts\                        # ScriptFileLoader, ScriptInjector, bootstrap & per-app JS navigators
 │   │   ├── Js\                         # document-bootstrap.js, spatial-navigation.js & on-screen-keyboard.js
 │   │   └── Navigators\Js\              # semantic-navigator-core.js, hbomax-navigator.js, primevideo-navigator.js
-│   ├── Shell\                          # CursorAutoHider, ExternalAppManager & IKioskShellActions
+│   ├── Shell\                          # SettingsMenuModalWindow, CursorAutoHider, ExternalAppManager, ToastOverlayWindow, AudioDeviceManager, ColorControlManager & IKioskShellActions
 │   ├── WebView\                        # WebViewManager, LauncherHostManager & UserAgentOverrideHandler
 │   ├── MainWindow.xaml / .cs           # Fullscreen borderless WebView2 shell
 │   └── config.json                     # Default kiosk settings and streaming service presets
 └── TvKioskWrapper.Tests\
     ├── Infrastructure\                 # KioskAutomationFixture & compact JSON status models
-    └── Navigators\                     # HboMaxNavigatorTests, PrimeVideoNavigatorTests & OnScreenKeyboardTests
+    ├── Navigators\                     # HboMaxNavigatorTests, PrimeVideoNavigatorTests & OnScreenKeyboardTests
+    └── Shell\                          # SettingsMenuTests (D-Pad navigation, submenus, video & audio selection)
 ```
 
 ---

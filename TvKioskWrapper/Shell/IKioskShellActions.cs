@@ -15,8 +15,8 @@ public interface IKioskShellActions
     void HideCursorImmediately();
     void ToggleAudioDevice();
     void EnableHomeTheaterMode();
-    bool IsVideoPresetModalOpen { get; }
-    void ToggleVideoPresetModal();
-    void CloseVideoPresetModal();
-    void HandleVideoPresetModalKey(System.Windows.Input.Key key);
+    bool IsSettingsMenuOpen { get; }
+    void ToggleSettingsMenu();
+    void CloseSettingsMenu();
+    void HandleSettingsMenuKey(System.Windows.Input.Key key);
 }

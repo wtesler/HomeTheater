@@ -27,7 +27,7 @@ public partial class MainWindow : Window, IKioskShellActions
     private readonly ColorControlManager _colorControlManager;
     private readonly AudioDeviceManager _audioDeviceManager;
     private readonly ToastOverlayWindow _toastWindow;
-    private readonly VideoPresetModalWindow _videoPresetModalWindow;
+    private readonly SettingsMenuModalWindow _settingsMenuWindow;
     private readonly AutomationServer? _automationServer;
 
     private bool _isInitialized;
@@ -50,16 +50,24 @@ public partial class MainWindow : Window, IKioskShellActions
 
         _externalAppManager = new ExternalAppManager(this);
         _externalAppManager.ReturnToLauncherRequested += NavigateToHome;
-        _externalAppManager.AudioToggleRequested += ToggleAudioDevice;
-        _externalAppManager.VideoPresetMenuRequested += ToggleVideoPresetModal;
-        _externalAppManager.EnableHomeTheaterRequested += EnableHomeTheaterMode;
+        _externalAppManager.SettingsMenuRequested += ToggleSettingsMenu;
+
+
 
         _colorControlManager = new ColorControlManager(_config.ColorControl, isAutomation: _config.AutomationEnabled);
         _audioDeviceManager = new AudioDeviceManager();
         _toastWindow = new ToastOverlayWindow(this);
-        _videoPresetModalWindow = new VideoPresetModalWindow(this);
-        _videoPresetModalWindow.PresetSelected += OnVideoPresetSelected;
-        _videoPresetModalWindow.ModalClosed += OnVideoPresetModalClosed;
+        _settingsMenuWindow = new SettingsMenuModalWindow(
+            this,
+            () => _colorControlManager.VideoPresetNames,
+            () => _audioDeviceManager.GetActivePlaybackDevices(),
+            () => _audioDeviceManager.GetDefaultPlaybackDeviceId());
+        _settingsMenuWindow.VideoPresetSelected += OnVideoPresetSelected;
+        _settingsMenuWindow.AudioDeviceSelected += OnAudioDeviceSelected;
+        _settingsMenuWindow.ForceHomeTheaterSelected += OnForceHomeTheaterSelected;
+        _settingsMenuWindow.MenuClosed += OnSettingsMenuClosed;
+
+
 
         _cursorAutoHider = new CursorAutoHider(
             this,
@@ -139,7 +147,7 @@ public partial class MainWindow : Window, IKioskShellActions
     private void Window_Closed(object sender, EventArgs e)
     {
         _toastWindow.Close();
-        _videoPresetModalWindow.Close();
+        _settingsMenuWindow.Close();
         _colorControlManager.DisableHomeTheaterMode();
         _colorControlManager.Dispose();
         _externalAppManager.Dispose();
@@ -162,55 +170,71 @@ public partial class MainWindow : Window, IKioskShellActions
         }
     }
 
-    public bool IsVideoPresetModalOpen => _videoPresetModalWindow.IsModalOpen;
+    public bool IsSettingsMenuOpen => _settingsMenuWindow.IsMenuOpen;
 
-    public void ToggleVideoPresetModal()
+    public void ToggleSettingsMenu()
     {
         if (!Dispatcher.CheckAccess())
         {
-            Dispatcher.BeginInvoke(ToggleVideoPresetModal);
+            Dispatcher.BeginInvoke(ToggleSettingsMenu);
             return;
         }
 
-        if (_videoPresetModalWindow.IsModalOpen)
+        if (_settingsMenuWindow.IsMenuOpen)
         {
-            _videoPresetModalWindow.CloseModal();
+            _settingsMenuWindow.CloseMenu();
             return;
         }
 
-        var presets = _colorControlManager.VideoPresetNames;
-        _videoPresetModalWindow.ShowModal(presets);
+
+        _settingsMenuWindow.ShowMenu();
     }
 
-    public void CloseVideoPresetModal()
+    public void CloseSettingsMenu()
     {
         if (!Dispatcher.CheckAccess())
         {
-            Dispatcher.BeginInvoke(CloseVideoPresetModal);
+            Dispatcher.BeginInvoke(CloseSettingsMenu);
             return;
         }
 
-        _videoPresetModalWindow.CloseModal();
+        _settingsMenuWindow.CloseMenu();
     }
 
-    public void HandleVideoPresetModalKey(Key key)
+    public void HandleSettingsMenuKey(Key key)
     {
         if (!Dispatcher.CheckAccess())
         {
-            Dispatcher.BeginInvoke(() => HandleVideoPresetModalKey(key));
+            Dispatcher.BeginInvoke(() => HandleSettingsMenuKey(key));
             return;
         }
 
-        _videoPresetModalWindow.HandleKey(key);
+        _settingsMenuWindow.HandleKey(key);
     }
 
-    private void OnVideoPresetSelected(int selectedIndex)
+    private void OnVideoPresetSelected(int selectedIndex, string presetName)
     {
+
         _colorControlManager.SetVideoPreset(selectedIndex);
+        _toastWindow.ShowVideoPresetToast(presetName);
         RestoreFocusAfterModal();
     }
 
-    private void OnVideoPresetModalClosed()
+    private void OnAudioDeviceSelected(AudioDeviceManager.AudioDeviceInfo device)
+    {
+        _audioDeviceManager.SetDefaultPlaybackDevice(device.Id);
+        _toastWindow.ShowAudioToast(device.Name);
+        RestoreFocusAfterModal();
+    }
+
+    private void OnForceHomeTheaterSelected()
+    {
+        _colorControlManager.EnableHomeTheaterMode();
+        _toastWindow.ShowSystemToast("Home Theater Mode Enabled");
+        RestoreFocusAfterModal();
+    }
+
+    private void OnSettingsMenuClosed()
     {
         RestoreFocusAfterModal();
     }
