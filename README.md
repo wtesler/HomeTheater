@@ -202,7 +202,7 @@ w:\CSharpProjects\HomeTheater\
 │   ├── Scripts\                        # ScriptFileLoader, ScriptInjector, bootstrap & per-app JS navigators
 │   │   ├── Js\                         # document-bootstrap.js, spatial-navigation.js & on-screen-keyboard.js
 │   │   └── Navigators\Js\              # semantic-navigator-core.js, hbomax-navigator.js, primevideo-navigator.js
-│   ├── Shell\                          # SettingsMenuModalWindow, CursorAutoHider, ExternalAppManager, ToastOverlayWindow, AudioDeviceManager, ColorControlManager & IKioskShellActions
+│   ├── Shell\                          # SettingsMenuModalWindow, CursorAutoHider, ExternalAppManager, AudioDeviceManager, ColorControlManager & IKioskShellActions
 │   ├── WebView\                        # WebViewManager, LauncherHostManager & UserAgentOverrideHandler
 │   ├── MainWindow.xaml / .cs           # Fullscreen borderless WebView2 shell
 │   └── config.json                     # Default kiosk settings and streaming service presets

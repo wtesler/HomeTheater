@@ -46,9 +46,6 @@ public sealed class SettingsMenuModalWindow : Window
     private readonly TextBlock _submenuTitleLabel;
     private readonly TextBlock _submenuSubtitleLabel;
 
-    private readonly Storyboard _fadeInStoryboard;
-    private readonly Storyboard _fadeOutStoryboard;
-
     private readonly List<Border> _mainItemBorders = new();
     private readonly List<Border> _submenuItemBorders = new();
 
@@ -93,7 +90,7 @@ public sealed class SettingsMenuModalWindow : Window
         Topmost = true;
         ShowInTaskbar = false;
         Focusable = true;
-        Opacity = 0;
+        Opacity = 1;
 
         // 1. Build Main Menu Card
         _mainItemsStackPanel = new StackPanel { Orientation = Orientation.Vertical };
@@ -130,28 +127,6 @@ public sealed class SettingsMenuModalWindow : Window
         };
 
         Content = rootBackdrop;
-
-        // Fade in animation
-        var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(120));
-        _fadeInStoryboard = new Storyboard();
-        _fadeInStoryboard.Children.Add(fadeIn);
-        Storyboard.SetTarget(fadeIn, this);
-        Storyboard.SetTargetProperty(fadeIn, new PropertyPath(OpacityProperty));
-
-        // Fade out animation
-        var fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(120));
-        _fadeOutStoryboard = new Storyboard();
-        _fadeOutStoryboard.Children.Add(fadeOut);
-        Storyboard.SetTarget(fadeOut, this);
-        Storyboard.SetTargetProperty(fadeOut, new PropertyPath(OpacityProperty));
-        _fadeOutStoryboard.Completed += (s, e) =>
-        {
-            if (Opacity <= 0.05)
-            {
-                Hide();
-                MenuClosed?.Invoke();
-            }
-        };
 
         BuildMainMenuItems();
     }
@@ -1182,15 +1157,13 @@ public sealed class SettingsMenuModalWindow : Window
         Height = ownerHeight;
 
         IsMenuOpen = true;
-        _fadeOutStoryboard.Stop();
         Show();
         Activate();
         Focus();
-        _fadeInStoryboard.Begin();
     }
 
     /// <summary>
-    /// Closes the popup settings menu.
+    /// Closes the popup settings menu immediately.
     /// </summary>
     public void CloseMenu()
     {
@@ -1200,8 +1173,8 @@ public sealed class SettingsMenuModalWindow : Window
         }
 
         IsMenuOpen = false;
-        _fadeInStoryboard.Stop();
-        _fadeOutStoryboard.Begin();
+        Hide();
+        MenuClosed?.Invoke();
     }
 
     /// <summary>

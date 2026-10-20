@@ -26,7 +26,6 @@ public partial class MainWindow : Window, IKioskShellActions
     private readonly ExternalAppManager _externalAppManager;
     private readonly ColorControlManager _colorControlManager;
     private readonly AudioDeviceManager _audioDeviceManager;
-    private readonly ToastOverlayWindow _toastWindow;
     private readonly SettingsMenuModalWindow _settingsMenuWindow;
     private readonly AutomationServer? _automationServer;
 
@@ -56,7 +55,6 @@ public partial class MainWindow : Window, IKioskShellActions
 
         _colorControlManager = new ColorControlManager(_config.ColorControl, isAutomation: _config.AutomationEnabled);
         _audioDeviceManager = new AudioDeviceManager();
-        _toastWindow = new ToastOverlayWindow(this);
         _settingsMenuWindow = new SettingsMenuModalWindow(
             this,
             () => _colorControlManager.VideoPresetNames,
@@ -150,7 +148,6 @@ public partial class MainWindow : Window, IKioskShellActions
 
     private void Window_Closed(object sender, EventArgs e)
     {
-        _toastWindow.Close();
         _settingsMenuWindow.Close();
         _colorControlManager.DisableHomeTheaterMode();
         _colorControlManager.Dispose();
@@ -167,11 +164,7 @@ public partial class MainWindow : Window, IKioskShellActions
             return;
         }
 
-        AudioDeviceManager.AudioDeviceInfo? next = _audioDeviceManager.ToggleNextPlaybackDevice();
-        if (next is not null)
-        {
-            _toastWindow.ShowAudioToast(next.Name);
-        }
+        _audioDeviceManager.ToggleNextPlaybackDevice();
     }
 
     public bool IsSettingsMenuOpen => _settingsMenuWindow.IsMenuOpen;
@@ -218,38 +211,27 @@ public partial class MainWindow : Window, IKioskShellActions
 
     private void OnVideoPresetSelected(int selectedIndex, string presetName)
     {
-
         _colorControlManager.SetVideoPreset(selectedIndex);
-        _toastWindow.ShowVideoPresetToast(presetName);
-        RestoreFocusAfterModal();
     }
 
     private void OnAudioDeviceSelected(AudioDeviceManager.AudioDeviceInfo device)
     {
         _audioDeviceManager.SetDefaultPlaybackDevice(device.Id);
-        _toastWindow.ShowAudioToast(device.Name);
-        RestoreFocusAfterModal();
     }
 
     private void OnSoundPresetSelected(int selectedIndex, string presetName)
     {
         _colorControlManager.SetSoundPreset(selectedIndex);
-        _toastWindow.ShowSoundPresetToast(presetName);
-        RestoreFocusAfterModal();
     }
 
     private void OnMotionPresetSelected(int selectedIndex, string presetName)
     {
         _colorControlManager.SetMotionPreset(selectedIndex);
-        _toastWindow.ShowMotionPresetToast(presetName);
-        RestoreFocusAfterModal();
     }
 
     private void OnForceHomeTheaterSelected()
     {
         _colorControlManager.EnableHomeTheaterMode();
-        _toastWindow.ShowSystemToast("Home Theater Mode Enabled");
-        RestoreFocusAfterModal();
     }
 
     private void OnSettingsMenuClosed()
