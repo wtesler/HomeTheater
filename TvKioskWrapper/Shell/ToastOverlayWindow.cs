@@ -193,6 +193,11 @@ public sealed class ToastOverlayWindow : Window
     public void ShowVideoPresetToast(string presetName) => ShowToast(presetName, "VIDEO PRESET", "📺");
 
     /// <summary>
+    /// Convenience method to display a sound preset change toast.
+    /// </summary>
+    public void ShowSoundPresetToast(string presetName) => ShowToast(presetName, "SOUND PRESET", "🎵");
+
+    /// <summary>
     /// Convenience method to display a motion clarity preset change toast.
     /// </summary>
     public void ShowMotionPresetToast(string presetName) => ShowToast(presetName, "MOTION CLARITY", "✨");

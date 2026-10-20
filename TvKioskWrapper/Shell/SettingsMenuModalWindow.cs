@@ -18,9 +18,10 @@ public sealed class SettingsMenuModalWindow : Window
     public enum SettingsCategory
     {
         Video = 0,
-        Audio = 1,
+        Sound = 1,
         Clarity = 2,
-        System = 3
+        Output = 3,
+        System = 4
     }
 
     private enum MenuColumn
@@ -31,9 +32,10 @@ public sealed class SettingsMenuModalWindow : Window
 
     private readonly Window _ownerWindow;
     private readonly Func<IReadOnlyList<string>> _videoPresetsProvider;
+    private readonly Func<IReadOnlyList<string>> _soundPresetsProvider;
+    private readonly Func<IReadOnlyList<string>> _motionPresetsProvider;
     private readonly Func<IReadOnlyList<AudioDeviceManager.AudioDeviceInfo>> _audioDevicesProvider;
     private readonly Func<string?> _defaultAudioDeviceProvider;
-    private readonly Func<IReadOnlyList<string>> _motionPresetsProvider;
 
     private readonly Border _mainMenuCard;
     private readonly Border _submenuCard;
@@ -56,30 +58,34 @@ public sealed class SettingsMenuModalWindow : Window
     private SettingsCategory _activeCategory = SettingsCategory.Video;
 
     private IReadOnlyList<string> _currentVideoPresets = Array.Empty<string>();
-    private IReadOnlyList<AudioDeviceManager.AudioDeviceInfo> _currentAudioDevices = Array.Empty<AudioDeviceManager.AudioDeviceInfo>();
+    private IReadOnlyList<string> _currentSoundPresets = Array.Empty<string>();
     private IReadOnlyList<string> _currentMotionPresets = Array.Empty<string>();
+    private IReadOnlyList<AudioDeviceManager.AudioDeviceInfo> _currentAudioDevices = Array.Empty<AudioDeviceManager.AudioDeviceInfo>();
     private int _subItemCount = 0;
 
     public bool IsMenuOpen { get; private set; }
 
     public event Action<int, string>? VideoPresetSelected;
-    public event Action<AudioDeviceManager.AudioDeviceInfo>? AudioDeviceSelected;
+    public event Action<int, string>? SoundPresetSelected;
     public event Action<int, string>? MotionPresetSelected;
+    public event Action<AudioDeviceManager.AudioDeviceInfo>? AudioDeviceSelected;
     public event Action? ForceHomeTheaterSelected;
     public event Action? MenuClosed;
 
     public SettingsMenuModalWindow(
         Window ownerWindow,
         Func<IReadOnlyList<string>> videoPresetsProvider,
+        Func<IReadOnlyList<string>> soundPresetsProvider,
+        Func<IReadOnlyList<string>> motionPresetsProvider,
         Func<IReadOnlyList<AudioDeviceManager.AudioDeviceInfo>> audioDevicesProvider,
-        Func<string?> defaultAudioDeviceProvider,
-        Func<IReadOnlyList<string>> motionPresetsProvider)
+        Func<string?> defaultAudioDeviceProvider)
     {
         _ownerWindow = ownerWindow;
         _videoPresetsProvider = videoPresetsProvider;
+        _soundPresetsProvider = soundPresetsProvider;
+        _motionPresetsProvider = motionPresetsProvider;
         _audioDevicesProvider = audioDevicesProvider;
         _defaultAudioDeviceProvider = defaultAudioDeviceProvider;
-        _motionPresetsProvider = motionPresetsProvider;
 
         WindowStyle = WindowStyle.None;
         AllowsTransparency = true;
@@ -341,8 +347,9 @@ public sealed class SettingsMenuModalWindow : Window
         (string name, string icon)[] categories =
         {
             ("Video", "📺"),
-            ("Audio", "🔊"),
+            ("Sound", "🎵"),
             ("Clarity", "✨"),
+            ("Output", "🔊"),
             ("System", "⚙️")
         };
 
@@ -445,11 +452,14 @@ public sealed class SettingsMenuModalWindow : Window
             case SettingsCategory.Video:
                 PopulateVideoSubmenu();
                 break;
-            case SettingsCategory.Audio:
-                PopulateAudioSubmenu();
+            case SettingsCategory.Sound:
+                PopulateSoundSubmenu();
                 break;
             case SettingsCategory.Clarity:
                 PopulateClaritySubmenu();
+                break;
+            case SettingsCategory.Output:
+                PopulateOutputSubmenu();
                 break;
             case SettingsCategory.System:
                 PopulateSystemSubmenu();
@@ -543,10 +553,93 @@ public sealed class SettingsMenuModalWindow : Window
         }
     }
 
-    private void PopulateAudioSubmenu()
+    private void PopulateSoundSubmenu()
+    {
+        _submenuIconText.Text = "🎵";
+        _submenuTitleLabel.Text = "SOUND";
+        _submenuSubtitleLabel.Text = "Select Sound Mode";
+
+        IReadOnlyList<string> presets = _soundPresetsProvider();
+        if (presets.Count == 0)
+        {
+            presets = new[] { "Standard", "Voice", "Cinema", "AI" };
+        }
+        _currentSoundPresets = presets;
+        _subItemCount = presets.Count;
+
+        for (int i = 0; i < presets.Count; i++)
+        {
+            int index = i;
+            string presetName = presets[i];
+
+            var indicatorText = new TextBlock
+            {
+                FontSize = 13,
+                FontWeight = FontWeights.Bold,
+                Width = 18,
+                TextAlignment = TextAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            var iconText = new TextBlock
+            {
+                Text = "🎵",
+                FontSize = 16,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(0, 0, 10, 0)
+            };
+
+            var nameText = new TextBlock
+            {
+                Text = presetName,
+                FontSize = 17,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            var itemGrid = new Grid();
+            itemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            itemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            itemGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            Grid.SetColumn(indicatorText, 0);
+            Grid.SetColumn(iconText, 1);
+            Grid.SetColumn(nameText, 2);
+
+            itemGrid.Children.Add(indicatorText);
+            itemGrid.Children.Add(iconText);
+            itemGrid.Children.Add(nameText);
+
+            var itemBorder = new Border
+            {
+                CornerRadius = new CornerRadius(12),
+                Margin = new Thickness(0, 3, 0, 3),
+                Padding = new Thickness(14, 11, 14, 11),
+                Cursor = Cursors.Hand,
+                Child = itemGrid,
+                Tag = index
+            };
+
+            itemBorder.MouseEnter += (s, e) =>
+            {
+                _subHighlightedIndex = index;
+                UpdateVisuals();
+            };
+
+            itemBorder.MouseLeftButtonDown += (s, e) =>
+            {
+                _subHighlightedIndex = index;
+                ExecuteSubmenuSelection();
+            };
+
+            _submenuItemBorders.Add(itemBorder);
+            _submenuItemsStackPanel.Children.Add(itemBorder);
+        }
+    }
+
+    private void PopulateOutputSubmenu()
     {
         _submenuIconText.Text = "🔊";
-        _submenuTitleLabel.Text = "AUDIO";
+        _submenuTitleLabel.Text = "OUTPUT";
         _submenuSubtitleLabel.Text = "Select Playback Device";
 
         IReadOnlyList<AudioDeviceManager.AudioDeviceInfo> devices = _audioDevicesProvider();
@@ -881,12 +974,13 @@ public sealed class SettingsMenuModalWindow : Window
                 }
                 break;
 
-            case SettingsCategory.Audio:
-                if (_subHighlightedIndex >= 0 && _subHighlightedIndex < _currentAudioDevices.Count)
+            case SettingsCategory.Sound:
+                if (_subHighlightedIndex >= 0 && _subHighlightedIndex < _currentSoundPresets.Count)
                 {
-                    AudioDeviceManager.AudioDeviceInfo device = _currentAudioDevices[_subHighlightedIndex];
+                    int index = _subHighlightedIndex;
+                    string name = _currentSoundPresets[index];
                     CloseMenu();
-                    AudioDeviceSelected?.Invoke(device);
+                    SoundPresetSelected?.Invoke(index, name);
                 }
                 break;
 
@@ -897,6 +991,15 @@ public sealed class SettingsMenuModalWindow : Window
                     string name = _currentMotionPresets[index];
                     CloseMenu();
                     MotionPresetSelected?.Invoke(index, name);
+                }
+                break;
+
+            case SettingsCategory.Output:
+                if (_subHighlightedIndex >= 0 && _subHighlightedIndex < _currentAudioDevices.Count)
+                {
+                    AudioDeviceManager.AudioDeviceInfo device = _currentAudioDevices[_subHighlightedIndex];
+                    CloseMenu();
+                    AudioDeviceSelected?.Invoke(device);
                 }
                 break;
 
@@ -1117,7 +1220,7 @@ public sealed class SettingsMenuModalWindow : Window
             return;
         }
 
-        int mainCategoriesCount = _mainItemBorders.Count > 0 ? _mainItemBorders.Count : 4;
+        int mainCategoriesCount = _mainItemBorders.Count > 0 ? _mainItemBorders.Count : 5;
 
         if (_focusedColumn == MenuColumn.Main)
         {

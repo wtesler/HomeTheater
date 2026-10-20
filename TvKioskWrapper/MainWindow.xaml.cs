@@ -60,12 +60,14 @@ public partial class MainWindow : Window, IKioskShellActions
         _settingsMenuWindow = new SettingsMenuModalWindow(
             this,
             () => _colorControlManager.VideoPresetNames,
+            () => _colorControlManager.SoundPresetNames,
+            () => _colorControlManager.MotionPresetNames,
             () => _audioDeviceManager.GetActivePlaybackDevices(),
-            () => _audioDeviceManager.GetDefaultPlaybackDeviceId(),
-            () => _colorControlManager.MotionPresetNames);
+            () => _audioDeviceManager.GetDefaultPlaybackDeviceId());
         _settingsMenuWindow.VideoPresetSelected += OnVideoPresetSelected;
-        _settingsMenuWindow.AudioDeviceSelected += OnAudioDeviceSelected;
+        _settingsMenuWindow.SoundPresetSelected += OnSoundPresetSelected;
         _settingsMenuWindow.MotionPresetSelected += OnMotionPresetSelected;
+        _settingsMenuWindow.AudioDeviceSelected += OnAudioDeviceSelected;
         _settingsMenuWindow.ForceHomeTheaterSelected += OnForceHomeTheaterSelected;
         _settingsMenuWindow.MenuClosed += OnSettingsMenuClosed;
 
@@ -226,6 +228,13 @@ public partial class MainWindow : Window, IKioskShellActions
     {
         _audioDeviceManager.SetDefaultPlaybackDevice(device.Id);
         _toastWindow.ShowAudioToast(device.Name);
+        RestoreFocusAfterModal();
+    }
+
+    private void OnSoundPresetSelected(int selectedIndex, string presetName)
+    {
+        _colorControlManager.SetSoundPreset(selectedIndex);
+        _toastWindow.ShowSoundPresetToast(presetName);
         RestoreFocusAfterModal();
     }
 
