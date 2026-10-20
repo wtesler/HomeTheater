@@ -145,6 +145,29 @@ public sealed class ColorControlManager : IDisposable
         return presetName;
     }
 
+    public IReadOnlyList<string> SoundPresetNames => [.. SoundPresets.Keys];
+
+    /// <summary>
+    /// Applies a specific sound preset by index.
+    /// </summary>
+    public string SetSoundPreset(int index)
+    {
+        if (_isAutomation || !_config.Enabled)
+        {
+            return string.Empty;
+        }
+
+        if (index < 0 || index >= SoundPresets.Count)
+        {
+            return string.Empty;
+        }
+
+        var (presetName, presetValue) = SoundPresets.GetAt(index);
+        ExecuteCommand(LgPreset + presetValue);
+
+        return presetName;
+    }
+
     private void ExecuteCommand(string arguments)
     {
         if (_isAutomation || !_config.Enabled)
