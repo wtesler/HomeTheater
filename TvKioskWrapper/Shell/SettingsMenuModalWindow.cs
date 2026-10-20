@@ -202,25 +202,6 @@ public sealed class SettingsMenuModalWindow : Window
             Margin = new Thickness(0, 16, 0, 12)
         };
 
-        var bottomSeparator = new Border
-        {
-            Height = 1,
-            Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255)),
-            Margin = new Thickness(0, 12, 0, 12)
-        };
-
-        // Footer hints
-        var footerHints = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Children =
-            {
-                CreateHintPill("▲/▼", "Move"),
-                CreateHintPill("Enter/►", "Open"),
-                CreateHintPill("F2/Esc", "Close")
-            }
-        };
-
         var cardLayout = new StackPanel
         {
             Orientation = Orientation.Vertical,
@@ -228,9 +209,7 @@ public sealed class SettingsMenuModalWindow : Window
             {
                 headerPanel,
                 topSeparator,
-                _mainItemsStackPanel,
-                bottomSeparator,
-                footerHints
+                _mainItemsStackPanel
             }
         };
 
@@ -243,7 +222,7 @@ public sealed class SettingsMenuModalWindow : Window
             BorderBrush = new SolidColorBrush(Color.FromArgb(64, 255, 255, 255)),
             BorderThickness = new Thickness(1.5),
             CornerRadius = new CornerRadius(20),
-            Padding = new Thickness(20, 20, 20, 16),
+            Padding = new Thickness(20, 20, 20, 18),
             Effect = new DropShadowEffect
             {
                 Color = Colors.Black,
@@ -312,24 +291,6 @@ public sealed class SettingsMenuModalWindow : Window
             Margin = new Thickness(0, 16, 0, 12)
         };
 
-        var bottomSeparator = new Border
-        {
-            Height = 1,
-            Background = new SolidColorBrush(Color.FromArgb(30, 255, 255, 255)),
-            Margin = new Thickness(0, 12, 0, 12)
-        };
-
-        var footerHints = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            Children =
-            {
-                CreateHintPill("▲/▼", "Move"),
-                CreateHintPill("Enter", "Select"),
-                CreateHintPill("◄/Esc", "Back")
-            }
-        };
-
         var cardLayout = new StackPanel
         {
             Orientation = Orientation.Vertical,
@@ -337,9 +298,7 @@ public sealed class SettingsMenuModalWindow : Window
             {
                 headerPanel,
                 topSeparator,
-                _submenuItemsStackPanel,
-                bottomSeparator,
-                footerHints
+                _submenuItemsStackPanel
             }
         };
 
@@ -354,7 +313,7 @@ public sealed class SettingsMenuModalWindow : Window
             BorderBrush = new SolidColorBrush(Color.FromArgb(64, 255, 255, 255)),
             BorderThickness = new Thickness(1.5),
             CornerRadius = new CornerRadius(20),
-            Padding = new Thickness(22, 20, 22, 16),
+            Padding = new Thickness(22, 20, 22, 18),
             Effect = new DropShadowEffect
             {
                 Color = Colors.Black,
@@ -366,41 +325,6 @@ public sealed class SettingsMenuModalWindow : Window
         };
 
         return (card, iconText, titleLabel, subtitleLabel);
-    }
-
-    private static FrameworkElement CreateHintPill(string key, string label)
-    {
-        var keyBorder = new Border
-        {
-            Background = new SolidColorBrush(Color.FromArgb(40, 255, 255, 255)),
-            BorderBrush = new SolidColorBrush(Color.FromArgb(60, 255, 255, 255)),
-            BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(5),
-            Padding = new Thickness(6, 2, 6, 2),
-            Child = new TextBlock
-            {
-                Text = key,
-                FontSize = 10,
-                FontWeight = FontWeights.Bold,
-                Foreground = new SolidColorBrush(Color.FromRgb(220, 220, 220))
-            }
-        };
-
-        var labelText = new TextBlock
-        {
-            Text = label,
-            FontSize = 11,
-            Foreground = new SolidColorBrush(Color.FromRgb(156, 163, 175)),
-            Margin = new Thickness(6, 0, 10, 0),
-            VerticalAlignment = VerticalAlignment.Center
-        };
-
-        return new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            VerticalAlignment = VerticalAlignment.Center,
-            Children = { keyBorder, labelText }
-        };
     }
 
     private void BuildMainMenuItems()
@@ -903,7 +827,7 @@ public sealed class SettingsMenuModalWindow : Window
             {
                 border.Background = new SolidColorBrush(Color.FromRgb(37, 99, 235));
                 border.BorderBrush = new SolidColorBrush(Color.FromRgb(147, 197, 253));
-                border.BorderThickness = new Thickness(2);
+                border.BorderThickness = new Thickness(1);
                 border.Effect = new DropShadowEffect
                 {
                     Color = Color.FromRgb(37, 99, 235),
@@ -924,7 +848,7 @@ public sealed class SettingsMenuModalWindow : Window
             {
                 border.Background = new SolidColorBrush(Color.FromArgb(70, 37, 99, 235));
                 border.BorderBrush = new SolidColorBrush(Color.FromArgb(140, 147, 197, 253));
-                border.BorderThickness = new Thickness(1.5);
+                border.BorderThickness = new Thickness(1);
                 border.Effect = null;
 
                 indicatorText.Text = "▶";
@@ -970,7 +894,7 @@ public sealed class SettingsMenuModalWindow : Window
             {
                 border.Background = new SolidColorBrush(Color.FromRgb(37, 99, 235));
                 border.BorderBrush = new SolidColorBrush(Color.FromRgb(147, 197, 253));
-                border.BorderThickness = new Thickness(2);
+                border.BorderThickness = new Thickness(1);
                 border.Effect = new DropShadowEffect
                 {
                     Color = Color.FromRgb(37, 99, 235),
@@ -982,7 +906,7 @@ public sealed class SettingsMenuModalWindow : Window
                 indicatorText.Text = "▶";
                 indicatorText.Foreground = Brushes.White;
 
-                SetTextColorRecursive(contentElement, Brushes.White, FontWeights.Bold);
+                SetTextColorRecursive(contentElement, Brushes.White, FontWeights.Normal);
             }
             else
             {
