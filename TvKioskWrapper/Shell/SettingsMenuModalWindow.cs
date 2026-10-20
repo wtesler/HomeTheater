@@ -89,7 +89,7 @@ public sealed class SettingsMenuModalWindow : Window
 
         WindowStyle = WindowStyle.None;
         AllowsTransparency = true;
-        Background = new SolidColorBrush(Color.FromArgb(140, 0, 0, 0));
+        Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
         Topmost = true;
         ShowInTaskbar = false;
         Focusable = true;
@@ -1046,7 +1046,7 @@ public sealed class SettingsMenuModalWindow : Window
                 indicatorText.Foreground = Brushes.White;
 
                 nameText.Foreground = Brushes.White;
-                nameText.FontWeight = FontWeights.Bold;
+                nameText.FontWeight = FontWeights.Normal;
 
                 chevronText.Foreground = Brushes.White;
             }
@@ -1061,7 +1061,7 @@ public sealed class SettingsMenuModalWindow : Window
                 indicatorText.Foreground = new SolidColorBrush(Color.FromRgb(147, 197, 253));
 
                 nameText.Foreground = Brushes.White;
-                nameText.FontWeight = FontWeights.SemiBold;
+                nameText.FontWeight = FontWeights.Normal;
 
                 chevronText.Foreground = Brushes.White;
             }
