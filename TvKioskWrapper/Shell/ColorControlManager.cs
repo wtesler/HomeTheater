@@ -14,6 +14,8 @@ public sealed class ColorControlManager : IDisposable
 {
     private const string LgPreset = "--nogui --lgpreset ";
 
+    private const string PowerOff = "Power_Off";
+
     private const string ModeHomeTheater = "Mode_HomeTheater";
     private const string ModePC = "Mode_PC";
 
@@ -65,6 +67,20 @@ public sealed class ColorControlManager : IDisposable
             SystemEvents.PowerModeChanged += OnPowerModeChanged;
             AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
         }
+    }
+
+    /// <summary>
+    /// Turns off the TV.
+    /// </summary>
+    public void TurnPowerOff()
+    {
+        if (_isAutomation || !_config.Enabled)
+        {
+            return;
+        }
+
+        Interlocked.Exchange(ref _disabled, 0);
+        Task.Run(() => ExecuteCommand(LgPreset + PowerOff));
     }
 
     /// <summary>

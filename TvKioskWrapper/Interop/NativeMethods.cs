@@ -16,10 +16,13 @@ internal static partial class NativeMethods
 
     internal const int WM_HOTKEY = 0x0312;
     internal const uint MOD_NOREPEAT = 0x4000;
+    internal const uint MOD_ALT = 0x0001;
+    internal const uint MOD_CONTROL = 0x0002;
     internal const uint VK_F1 = 0x70;
     internal const uint VK_F2 = 0x71;
     internal const uint VK_F3 = 0x72;
     internal const uint VK_F4 = 0x73;
+    internal const uint VK_F10 = 0x79;
     internal const uint VK_F12 = 0x7B;
     internal const int SW_RESTORE = 9;
 
@@ -59,6 +62,13 @@ internal static partial class NativeMethods
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool UnregisterHotKey(nint hWnd, int id);
+
+    [LibraryImport("powrprof.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool SetSuspendState(
+        [MarshalAs(UnmanagedType.Bool)] bool bHibernate,
+        [MarshalAs(UnmanagedType.Bool)] bool bForce,
+        [MarshalAs(UnmanagedType.Bool)] bool bWakeupEventsDisabled);
 
     /// <summary>
     /// Normalizes the Win32 thread cursor display counter so the cursor is deterministically shown or hidden,

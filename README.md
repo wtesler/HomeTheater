@@ -115,6 +115,7 @@ Map your physical remote buttons in the FLIRC application to the following stand
 | **Settings Menu** | `F2` | Opens the 10-foot Settings popup menu in the top-left to configure Video presets (Standard, Cinema Home), Audio playback devices, Clarity motion presets (Off, Cinematic, Natural), and System actions (Force Home Theater). Pressing `F2` again closes the menu. |
 | **Play / Pause** | `MediaPlayPause` | Toggles play/pause on the active HTML5 `<video>` element. |
 | **Power / Exit** | `F12`, `Alt + F4`, `Ctrl + Q` | Cleanly closes any launched external app, exits the kiosk, and restores the system cursor. |
+| **Sleep / Standby** | `F10` | Suspends the computer into low-power sleep mode (`SetSuspendState`) and turns off the display (`ColorControl`). |
 | **GPU Diagnostics** | `Ctrl + Shift + G` | Navigates to `edge://gpu` to verify PlayReady SL3000 & HEVC hardware support. |
 
 ---

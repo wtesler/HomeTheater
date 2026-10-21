@@ -21,6 +21,7 @@ public sealed class LauncherHostManager
     public event Action<string>? ServiceLaunchRequested;
     public event Action<string>? ExternalAppLaunchRequested;
     public event Action? HomeRequested;
+    public event Action? SleepRequested;
 
     public LauncherHostManager(AppConfig config)
     {
@@ -113,6 +114,10 @@ public sealed class LauncherHostManager
                          string.Equals(key, "Home", StringComparison.OrdinalIgnoreCase))
                 {
                     HomeRequested?.Invoke();
+                }
+                else if (string.Equals(key, "Sleep", StringComparison.OrdinalIgnoreCase))
+                {
+                    SleepRequested?.Invoke();
                 }
             }
         }

@@ -28,6 +28,10 @@ public partial class MainWindow : Window, IKioskShellActions
     private readonly AudioDeviceManager _audioDeviceManager;
     private readonly SettingsMenuModalWindow _settingsMenuWindow;
     private readonly AutomationServer? _automationServer;
+    private const int HotKeyIdSleep = 9010;
+    private HwndSource? _hwndSource;
+    private bool _sleepHotKeyRegistered;
+    private bool _isSleeping;
 
     private bool _isInitialized;
 
@@ -47,6 +51,7 @@ public partial class MainWindow : Window, IKioskShellActions
         _webViewManager.ExternalAppLaunchRequested += LaunchExternalApp;
         _webViewManager.ServiceLaunchRequested += OnServiceLaunchRequested;
         _webViewManager.HomeRequested += NavigateToHome;
+        _webViewManager.SleepRequested += PutComputerToSleep;
 
         _externalAppManager = new ExternalAppManager(this);
         _externalAppManager.ReturnToLauncherRequested += NavigateToHome;
@@ -104,6 +109,7 @@ public partial class MainWindow : Window, IKioskShellActions
             ActivateNativeWindow();
             _cursorAutoHider.Start();
             _colorControlManager.EnableHomeTheaterMode();
+            RegisterGlobalSleepHotKey();
         }
 
         await _webViewManager.InitializeAsync();
@@ -149,6 +155,7 @@ public partial class MainWindow : Window, IKioskShellActions
 
     private void Window_Closed(object sender, EventArgs e)
     {
+        UnregisterGlobalSleepHotKey();
         _settingsMenuWindow.Close();
         _colorControlManager.DisableHomeTheaterMode();
         _colorControlManager.Dispose();
@@ -327,5 +334,104 @@ public partial class MainWindow : Window, IKioskShellActions
         {
             NativeMethods.SetForegroundWindow(hwnd);
         }
+    }
+
+    public async void PutComputerToSleep()
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            _ = Dispatcher.BeginInvoke(PutComputerToSleep);
+            return;
+        }
+
+        if (_isSleeping)
+        {
+            return;
+        }
+
+        _isSleeping = true;
+
+        try
+        {
+            if (IsSettingsMenuOpen)
+            {
+                CloseSettingsMenu();
+            }
+
+            HideCursorImmediately();
+            _colorControlManager.TurnPowerOff();
+
+            if (_config.AutomationEnabled)
+            {
+                return;
+            }
+
+            await Task.Delay(2000);
+            NativeMethods.SetSuspendState(bHibernate: false, bForce: false, bWakeupEventsDisabled: false);
+        }
+        finally
+        {
+            _isSleeping = false;
+        }
+    }
+
+    private void RegisterGlobalSleepHotKey()
+    {
+        if (_sleepHotKeyRegistered)
+        {
+            return;
+        }
+
+        nint hwnd = new WindowInteropHelper(this).Handle;
+        if (hwnd == nint.Zero)
+        {
+            return;
+        }
+
+        _hwndSource = HwndSource.FromHwnd(hwnd);
+        _hwndSource?.AddHook(WndProc);
+
+        _sleepHotKeyRegistered = NativeMethods.RegisterHotKey(
+            hwnd,
+            HotKeyIdSleep,
+            NativeMethods.MOD_NOREPEAT,
+            NativeMethods.VK_F10);
+    }
+
+    private void UnregisterGlobalSleepHotKey()
+    {
+        if (!_sleepHotKeyRegistered)
+        {
+            return;
+        }
+
+        nint hwnd = new WindowInteropHelper(this).Handle;
+        if (hwnd != nint.Zero)
+        {
+            NativeMethods.UnregisterHotKey(hwnd, HotKeyIdSleep);
+        }
+
+        _sleepHotKeyRegistered = false;
+
+        if (_hwndSource is not null)
+        {
+            _hwndSource.RemoveHook(WndProc);
+            _hwndSource = null;
+        }
+    }
+
+    private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
+    {
+        if (msg == NativeMethods.WM_HOTKEY)
+        {
+            int id = wParam.ToInt32();
+            if (id == HotKeyIdSleep)
+            {
+                handled = true;
+                PutComputerToSleep();
+            }
+        }
+
+        return nint.Zero;
     }
 }

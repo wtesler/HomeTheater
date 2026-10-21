@@ -25,6 +25,11 @@ public static class BrowserShortcutFilter
                modifiers == (ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift);
     }
 
+    public static bool IsSleepShortcut(Key key)
+    {
+        return key == Key.F10;
+    }
+
     public static bool IsBlockedBrowserShortcut(Key key, ModifierKeys modifiers)
     {
         // Block function keys that trigger browser actions (F5 reload, F7 caret browsing)

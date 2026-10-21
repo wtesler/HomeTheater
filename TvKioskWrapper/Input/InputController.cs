@@ -53,6 +53,17 @@ public sealed class InputController
             return;
         }
 
+        if (BrowserShortcutFilter.IsSleepShortcut(key))
+        {
+            if (_shell.IsSettingsMenuOpen)
+            {
+                _shell.CloseSettingsMenu();
+            }
+            handled = true;
+            _shell.PutComputerToSleep();
+            return;
+        }
+
         if (key is Key.F1 or Key.Home)
         {
             if (_shell.IsSettingsMenuOpen)
@@ -110,6 +121,18 @@ public sealed class InputController
             }
             e.Handled = true;
             Application.Current?.Dispatcher.BeginInvoke(() => Application.Current.Shutdown());
+            return;
+        }
+
+        // 1b. Sleep / Standby shortcut: F10
+        if (BrowserShortcutFilter.IsSleepShortcut(key))
+        {
+            if (_shell.IsSettingsMenuOpen)
+            {
+                _shell.CloseSettingsMenu();
+            }
+            e.Handled = true;
+            _shell.PutComputerToSleep();
             return;
         }
 

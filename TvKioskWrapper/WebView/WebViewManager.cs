@@ -38,6 +38,7 @@ public sealed class WebViewManager
     public event Action<string>? ServiceLaunchRequested;
     public event Action<string>? ExternalAppLaunchRequested;
     public event Action? HomeRequested;
+    public event Action? SleepRequested;
 
     public WebViewManager(WebView2 webView, ScriptInjector scriptInjector, AppConfig config)
     {
@@ -52,6 +53,7 @@ public sealed class WebViewManager
         };
         _launcherHostManager.ExternalAppLaunchRequested += exePath => ExternalAppLaunchRequested?.Invoke(exePath);
         _launcherHostManager.HomeRequested += () => HomeRequested?.Invoke();
+        _launcherHostManager.SleepRequested += () => SleepRequested?.Invoke();
     }
 
     public static string GetIsolatedProfilePath()

@@ -19,4 +19,5 @@ public interface IKioskShellActions
     void ToggleSettingsMenu();
     void CloseSettingsMenu();
     void HandleSettingsMenuKey(System.Windows.Input.Key key);
+    void PutComputerToSleep();
 }

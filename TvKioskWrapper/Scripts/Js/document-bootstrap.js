@@ -25,6 +25,10 @@
             e.preventDefault();
             e.stopPropagation();
             window.chrome?.webview?.postMessage({ type: 'hotkey', key: 'F1' });
+        } else if (e.key === 'F10') {
+            e.preventDefault();
+            e.stopPropagation();
+            window.chrome?.webview?.postMessage({ type: 'hotkey', key: 'Sleep' });
         }
     }, true);
 
